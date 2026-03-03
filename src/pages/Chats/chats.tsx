@@ -1,41 +1,34 @@
 import MessengerLayout from "@/layouts/messenger-layout"
-import { lazy, Suspense, useState } from "react"
-import ChatWindow from "./componenets/chat-window"
-
-import { cn } from "@/lib/utils"
-import ChatsCard from "./componenets/chats-card"
+import { Outlet, useParams } from "react-router"
+import { ChatsList } from "./components/chats-list"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const Chats = () => {
-    const [selectedChatId, setSelectedChatId] = useState<number | null>(null)
+  const isMobile = useIsMobile()
+  const { id } = useParams<"id">()
 
-    const handleBackToChats = () => {
-        setSelectedChatId(null)
-    }
-
-    return (
-        <MessengerLayout>
-            <div className="flex flex-1 overflow-hidden p-4 gap-4">
-                {/* Chats List */}
-                <div className={cn('flex min-h-0 w-full max-w-sm flex-col', selectedChatId !== null ? "hidden md:flex" : "flex")}>
-                        <ChatsCard
-                            selectedChatId={selectedChatId}
-                            setSelectedChatId={setSelectedChatId}
-                        />
-                    {/* <Suspense fallback={<div>Loading...</div>}>
-                    </Suspense> */}
-                </div>
-
-                {/* Chat Window */}
-                <div className={cn('min-h-0 flex-1', selectedChatId === null ? "hidden md:flex" : "flex")}>
-                    <ChatWindow
-                        selectedChatId={selectedChatId}
-                        onBack={handleBackToChats}
-                    />
-                </div>
-
+  return (
+    <MessengerLayout>
+      <div className="p-5 flex h-full w-full">
+        {isMobile ? (
+          id ? (
+            <div className="flex-1 min-w-0 flex flex-col">
+              <Outlet />
             </div>
-        </MessengerLayout>
-    )
+          ) : (
+            <ChatsList />
+          )
+        ) : (
+          <>
+            <ChatsList />
+            <div className="flex-1 min-w-0 p-1">
+              <Outlet />
+            </div>
+          </>
+        )}
+      </div>
+    </MessengerLayout>
+  )
 }
 
 export default Chats

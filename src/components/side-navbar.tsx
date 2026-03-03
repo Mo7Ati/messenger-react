@@ -1,118 +1,130 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import {
-  MessageCircle,
-  Settings,
-  Sparkles,
-  User,
-  UserRound,
-  Users,
-} from "lucide-react"
-import { Button } from "./ui/button"
-import { useNavigate } from "react-router"
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
-const navItems: { label: string; path: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { label: "Chats", path: "/", icon: MessageCircle },
-  { label: "Contacts", path: "/contacts", icon: Users },
-  { label: "Groups", path: "/groups", icon: UserRound },
-  { label: "Settings", path: "/settings", icon: Settings },
-  { label: "Highlights", path: "/highlights", icon: Sparkles },
+import { MessageSquare, Users, User, Sparkles, MessageCircleCode } from "lucide-react"
+import { NavLink, useLocation, useNavigate } from "react-router"
+import { NavUser } from "./nav-user"
+
+type NavItem = {
+  label: string
+  href: string
+  icon: React.ElementType
+}
+
+const items: NavItem[] = [
+  { label: "Chats", href: "/chats", icon: MessageSquare },
+  { label: "Groups", href: "/groups", icon: Users },
+  { label: "Contacts", href: "/contacts", icon: User },
+  { label: "Highlights", href: "/highlights", icon: Sparkles },
 ]
 
-const SideNavbar = () => {
-  const navigate = useNavigate();
-  const [activeItem, setActiveItem] = React.useState<string>("/")
+function NavIcon({
+  item,
+  active,
+}: {
+  item: NavItem
+  active: boolean
+}) {
+  const Icon = item.icon
 
   return (
-    <div>
-      {/* Desktop / tablet sidebar */}
-      <aside className="hidden w-16 h-full flex-col items-center justify-between border-r bg-background px-3 py-6 md:flex">
-        {/* Top logo / app icon */}
+    <Tooltip>
+      <TooltipTrigger asChild>
         <Button
-          variant="default"
+          asChild
+          variant="ghost"
           size="icon"
-          aria-label="Dashboard"
-          onClick={() => navigate("/")}
+          className={cn(
+            "h-12 w-12 rounded-2xl",
+            "text-muted-foreground hover:text-foreground",
+            "hover:bg-muted/60",
+            active && "bg-muted text-foreground"
+          )}
         >
-          <MessageCircle size={30} />
+          <NavLink to={item.href} aria-label={item.label}>
+            <Icon className="h-5 w-5" />
+          </NavLink>
         </Button>
+      </TooltipTrigger>
 
-        {/* Middle navigation icons */}
-        <nav className="flex flex-col items-center gap-4">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = item.path === activeItem
-
-            return (
-              <Button
-                key={item.path}
-                variant="ghost"
-                onClick={() => {
-                  setActiveItem(item.path)
-                }}
-                className={cn(
-                  "flex h-11 w-11 items-center justify-center rounded-3xl text-slate-400 transition-all",
-                  "hover:text-indigo-500 hover:bg-slate-100",
-                  isActive && "bg-indigo-50 text-indigo-500 shadow-sm shadow-indigo-100"
-                )}
-                aria-label={item.label}
-                aria-pressed={isActive}
-              >
-                <Icon className="h-5 w-5" />
-              </Button>
-            )
-          })}
-        </nav>
-
-        {/* Bottom user avatar */}
-        <Button
-          // variant="default"
-          size="icon"
-          // className="mt-4 flex h-11 w-11 items-center justify-center rounded-full border border-transparent bg-linear-to-tr from-pink-400 to-indigo-500 text-xs font-semibold text-white shadow-sm shadow-indigo-100"
-          aria-label="Open profile"
-        >
-          <User size={30} />
-        </Button>
-      </aside>
-
-      {/* Mobile bottom navigation bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-center border-t bg-background/90 px-4 py-2 shadow-lg backdrop-blur md:hidden">
-        <div className="flex w-full max-w-md items-center justify-between gap-2">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = item.path === activeItem
-
-            return (
-              <Button
-                key={item.path}
-                variant="ghost"
-                onClick={() => setActiveItem(item.path)}
-                className={cn(
-                  "flex flex-1 items-center justify-center rounded-3xl px-2 py-2 text-slate-400 transition-all",
-                  "hover:text-indigo-500 hover:bg-slate-100",
-                  isActive && "bg-indigo-50 text-indigo-500 shadow-sm shadow-indigo-100"
-                )}
-                aria-label={item.label}
-                aria-pressed={isActive}
-              >
-                <Icon className="h-5 w-5" />
-              </Button>
-            )
-          })}
-
-          {/* Avatar on the right, matching the screenshot */}
-          <Button
-            variant="default"
-            size="icon"
-            // className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent bg-linear-to-tr from-pink-400 to-indigo-500 text-xs font-semibold text-white shadow-sm shadow-indigo-100"
-            aria-label="Open profile"
-          >
-            <User size={30} />
-          </Button>
-        </div >
-      </nav >
-    </div>
+      {/* Tooltips only on desktop */}
+      <TooltipContent side="right" className="hidden md:block text-xs">
+        {item.label}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
-export default SideNavbar
+export default function SideNavbar() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  return (
+    <TooltipProvider delayDuration={150}>
+      {/* DESKTOP: Left Sidebar */}
+      <aside
+        className={cn(
+          "hidden md:flex",
+          "h-screen w-[72px] shrink-0",
+          "border-r bg-background",
+          "flex-col items-center justify-between py-4"
+        )}
+      >
+        <MessageCircleCode className="text-primary mt-3 hover:text-primary/80 cursor-pointer" size={30} onClick={() => navigate("/chats")} />
+
+        <div className="flex flex-col items-center gap-3">
+          {items.map((item) => (
+            <NavIcon key={item.href} item={item} active={location.pathname === item.href} />
+          ))}
+        </div>
+
+        <div>
+          <Separator className="w-10 my-2" />
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <NavUser />
+          </React.Suspense>
+        </div>
+
+      </aside>
+
+      {/* MOBILE: Bottom Bar */}
+      <nav
+        className={cn(
+          "md:hidden",
+          "fixed bottom-0 left-0 right-0 z-50",
+          "border-t bg-background/95 backdrop-blur",
+          "px-3 py-2",
+        )}
+      >
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          {items.map((item) => (
+            <Button
+              key={item.href}
+              asChild
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-12 w-12 rounded-2xl",
+                "text-muted-foreground hover:text-foreground",
+                location.pathname === item.href && "bg-muted text-foreground"
+              )}
+            >
+              <NavLink to={item.href} aria-label={item.label}>
+                <item.icon className="h-5 w-5" />
+              </NavLink>
+            </Button>
+          ))}
+          <NavUser />
+        </div>
+      </nav>
+    </TooltipProvider>
+  )
+}
