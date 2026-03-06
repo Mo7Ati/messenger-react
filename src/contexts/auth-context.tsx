@@ -109,3 +109,9 @@ export function useAuth(): AuthContextValue {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
+export function useUser(): User {
+  const { user } = useAuth();
+  if (!user) throw new Error("User not found");
+  return user;
+}

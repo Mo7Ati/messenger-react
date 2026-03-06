@@ -14,15 +14,16 @@ import { Check, CheckCheck } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
 
 export function ChatsList() {
-  const { data: chats } = useChats();
+  const { data: chats, isLoading } = useChats();
   const navigate = useNavigate();
-  const { id } = useParams<"id">();
+  const { chatId } = useParams<{ chatId: string }>();
 
-  if (!chats) return <ChatsSkeleton />;
+  if (isLoading) return <ChatsSkeleton />;
+  if (!chats) return <div>No chats found</div>;
 
   return (
     <Card className={cn(
-      id && "hidden",
+      chatId && "hidden",
       "w-full md:w-96 block "
     )}>
       {/* Header */}
@@ -52,12 +53,14 @@ export function ChatsList() {
         <ScrollArea className="h-full">
           <ul className="divide-y">
             {chats.map((chat) => {
-              const active = chat.id === Number(id);
+              const active = chat.id === Number(chatId);
               return (
                 <li key={chat.id} >
                   <button
                     type="button"
-                    onClick={() => navigate(`/chats/${chat.id}`)}
+                    onClick={() => {
+                      navigate(`/chats/${chat.id}`, { state: { chat } })
+                    }}
                     className={cn(
                       "w-full px-4 py-3 text-left transition-colors cursor-pointer",
                       "hover:bg-muted/50 focus-visible:bg-muted/60 outline-none",
