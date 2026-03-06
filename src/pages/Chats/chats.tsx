@@ -19,7 +19,7 @@ const Chats = () => {
       ) : (
         <>
           <ChatsList />
-          <div className="flex-1 min-w-0 p-1">
+          <div className="flex-1 min-w-0 p-1 flex flex-col min-h-0">
             <Outlet />
           </div>
         </>

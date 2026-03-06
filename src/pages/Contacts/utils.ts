@@ -17,12 +17,13 @@ export const useContacts = () => {
         },
     })
 }
-export const useContact = (id: number) => {
+export const useContact = (id: number, enabled: boolean) => {
     return useQuery<ShowContactResponse, Error>({
         queryKey: ["contact", id],
         queryFn: async () => {
             const { data } = await api<ShowContactResponse>(`/contacts/${id}`)
             return data
         },
+        enabled: enabled && !!id,
     })
 }

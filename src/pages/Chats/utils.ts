@@ -12,12 +12,13 @@ export function useChats() {
   })
 }
 
-export function useChat(id: number) {
+export function useChat(id: number, enabled: boolean) {
   return useQuery<Chat, Error>({
     queryKey: ["chat", id],
     queryFn: async () => {
       const { data } = await api<Chat>(`/conversations/${id}`)
       return data
     },
+    enabled: enabled && !!id,
   })
 }

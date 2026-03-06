@@ -6,6 +6,7 @@ export type User = {
     name: string;
     email: string;
     avatar_url: string
+    bio: string
     last_active_at: string
     [key: string]: unknown;
 };

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+import { useState, useMemo } from "react"
 import { Plus, Search } from "lucide-react"
 import { useChats } from "../utils"
 import { ChatsSkeleton } from "./chats-skeleton"
@@ -12,22 +13,56 @@ import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, Ava
 import { Badge } from "@/components/ui/badge"
 import { Check, CheckCheck } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
+import { EmptyState } from "@/components/empty-state"
 
 export function ChatsList() {
   const { data: chats, isLoading } = useChats();
   const navigate = useNavigate();
   const { chatId } = useParams<{ chatId: string }>();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredChats = useMemo(() => {
+    if (!chats) return [];
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return chats;
+    return chats.filter(
+      (chat) =>
+        chat.label.toLowerCase().includes(q) ||
+        chat.participants.some((p) => p.name.toLowerCase().includes(q) || p.email?.toLowerCase().includes(q))
+    );
+  }, [chats, searchQuery]);
 
   if (isLoading) return <ChatsSkeleton />;
-  if (!chats) return <div>No chats found</div>;
+  if (!chats) {
+    return (
+      <Card className={cn(chatId && "hidden", "w-full md:w-96 h-full flex flex-col overflow-hidden")}>
+        <CardHeader className="pb-3 shrink-0">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-semibold">Chats</CardTitle>
+            <Button variant="outline" className="rounded-xl" type="button" onClick={() => navigate("/contacts")}>
+              <Plus className="mr-2 h-4 w-4" />
+              New
+            </Button>
+          </div>
+          <div className="relative mt-3">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input className="pl-9 rounded-xl" placeholder="Chats search..." disabled />
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1 min-h-0 p-0 mt-7 flex items-center justify-center">
+          <EmptyState variant="no-chats-list" compact />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={cn(
       chatId && "hidden",
-      "w-full md:w-96 block "
+      "w-full md:w-96 h-full flex flex-col overflow-hidden"
     )}>
       {/* Header */}
-      <CardHeader className="pb-3" >
+      <CardHeader className="pb-3 shrink-0" >
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl font-semibold">Chats</CardTitle>
 
@@ -35,6 +70,7 @@ export function ChatsList() {
             variant="outline"
             className="rounded-xl"
             type="button"
+            onClick={() => navigate("/chats")}
           >
             <Plus className="mr-2 h-4 w-4" />
             New
@@ -44,15 +80,23 @@ export function ChatsList() {
         {/* Search */}
         <div className="relative mt-3">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input className="pl-9 rounded-xl" placeholder="Chats search..." />
+          <Input
+            className="pl-9 rounded-xl"
+            placeholder="Chats search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
       </CardHeader>
 
       {/* List */}
       <CardContent className="flex-1 min-h-0 p-0 mt-7" >
         <ScrollArea className="h-full">
+          {filteredChats.length === 0 ? (
+            <EmptyState variant="no-search-results" compact />
+          ) : (
           <ul className="divide-y">
-            {chats.map((chat) => {
+            {filteredChats.map((chat) => {
               const active = chat.id === Number(chatId);
               return (
                 <li key={chat.id} >
@@ -123,8 +167,9 @@ export function ChatsList() {
               )
             })}
           </ul>
+          )}
         </ScrollArea>
-      </ CardContent>
-    </Card >
+      </CardContent>
+    </Card>
   )
 }

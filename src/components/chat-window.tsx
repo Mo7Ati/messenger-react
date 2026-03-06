@@ -1,19 +1,36 @@
-import { useEffect, useRef } from "react"
-import { ArrowLeft, Phone, Video, MoreVertical, Send, Smile, Paperclip } from "lucide-react"
-import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar"
+import { useEffect, useMemo, useRef } from "react"
+import {
+  ArrowLeft,
+  Phone,
+  Video,
+  MoreVertical,
+  Send,
+  Smile,
+  Paperclip,
+} from "lucide-react"
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import type { Message, User } from "@/types/general"
-
+import { ChatWindowSkeleton } from "./ui/chat-window-skeleton"
 
 type ChatWindowProps = {
+  title: string
+  subtitle?: string
   participants: User[]
-  label: string
   messages: Message[]
   input: string
   isLoading?: boolean
+  isSending?: boolean
   onBack?: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   onSend: () => void
@@ -21,10 +38,11 @@ type ChatWindowProps = {
 
 export const ChatWindow = ({
   participants,
-  label,
+  title,
   messages,
   input,
   isLoading,
+  isSending,
   onBack,
   onInputChange,
   onSend,
@@ -35,52 +53,59 @@ export const ChatWindow = ({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
 
+  const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
+  const extraParticipantsCount = Math.max(participants.length - 2, 0)
+  const canSend = input.trim().length > 0 && !isSending
+
   if (isLoading) {
-    return <div>Loading...</div>
+    return <ChatWindowSkeleton />
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden bg-background">
-      <div className="flex items-center gap-3 px-4 py-3 border rounded-2xl bg-background">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
+      <div className="flex items-center gap-3 rounded-2xl border bg-background px-4 py-3">
         {onBack && (
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            className="md:hidden h-8 w-8"
+            className="h-8 w-8 md:hidden"
             onClick={onBack}
           >
             <ArrowLeft size={18} />
           </Button>
         )}
 
-        <div className="relative shrink-0">
+        <div className="shrink-0">
           <AvatarGroup>
-            {participants.map((participant) => (
+            {visibleParticipants.map((participant) => (
               <Avatar key={participant.id}>
                 <AvatarImage src={participant.avatar_url} alt={participant.name} />
-                <AvatarFallback>{participant.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback>
+                  {participant.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
                 <AvatarBadge className="bg-green-600 dark:bg-green-800" />
               </Avatar>
             ))}
-            {participants.length > 2 && (
-              <AvatarGroupCount>{participants.length - 2}</AvatarGroupCount>
+
+            {extraParticipantsCount > 0 && (
+              <AvatarGroupCount>+{extraParticipantsCount}</AvatarGroupCount>
             )}
           </AvatarGroup>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">{label}</p>
-          <p className="text-xs text-muted-foreground truncate">{/* status here */}</p>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">{title}</p>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+        <div className="shrink-0 flex items-center gap-1">
+          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
             <Phone size={18} />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
             <Video size={18} />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
             <MoreVertical size={18} />
           </Button>
         </div>
@@ -88,28 +113,35 @@ export const ChatWindow = ({
 
       <ScrollArea className="h-0 flex-1 px-4 py-4">
         <div className="flex flex-col gap-2">
+          {messages.length === 0 && (
+            <div className="flex h-full min-h-[200px] items-center justify-center">
+              <p className="text-sm text-muted-foreground">
+                No messages yet. Start the conversation.
+              </p>
+            </div>
+          )}
+
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={cn(
-                "flex w-full",
-                msg.is_mine ? "justify-end" : "justify-start"
-              )}
+              className={cn("flex w-full", msg.is_mine ? "justify-end" : "justify-start")}
             >
               <div
                 className={cn(
-                  "max-w-[85%] sm:max-w-[75%] md:max-w-[60%] overflow-hidden rounded-2xl px-3.5 py-2 text-sm",
+                  "max-w-[85%] overflow-hidden rounded-2xl px-3.5 py-2 text-sm sm:max-w-[75%] md:max-w-[60%]",
                   msg.is_mine
-                    ? "bg-primary text-primary-foreground rounded-br-md"
-                    : "bg-muted text-foreground rounded-bl-md"
+                    ? "rounded-br-md bg-primary text-primary-foreground"
+                    : "rounded-bl-md bg-muted text-foreground"
                 )}
               >
-                <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
+                <p className="whitespace-pre-wrap break-words">{msg.body}</p>
 
                 <p
                   className={cn(
-                    "text-[10px] mt-1 text-right whitespace-nowrap",
-                    msg.is_mine ? "text-primary-foreground/70" : "text-muted-foreground"
+                    "mt-1 whitespace-nowrap text-right text-[10px]",
+                    msg.is_mine
+                      ? "text-primary-foreground/70"
+                      : "text-muted-foreground"
                   )}
                 >
                   {msg.created_at}
@@ -122,20 +154,28 @@ export const ChatWindow = ({
         </div>
       </ScrollArea>
 
-      <div className="border-t px-4 py-3 bg-background">
-        <div className="flex items-center gap-2  mx-auto min-w-0">
+      <div className="border-t bg-background px-4 py-3">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (canSend) onSend()
+          }}
+          className="mx-auto flex min-w-0 items-center gap-2"
+        >
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-muted-foreground shrink-0"
+            className="h-9 w-9 shrink-0 text-muted-foreground"
           >
             <Smile size={20} />
           </Button>
 
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-muted-foreground shrink-0"
+            className="h-9 w-9 shrink-0 text-muted-foreground"
           >
             <Paperclip size={20} />
           </Button>
@@ -144,29 +184,21 @@ export const ChatWindow = ({
             placeholder="Type a message..."
             value={input}
             onChange={onInputChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                onSend()
-              }
-            }}
-            className="flex-1 h-9 bg-muted/50 border-0 min-w-0"
+            className="h-9 min-w-0 flex-1 border-0 bg-muted/50"
           />
 
           <Button
+            type="submit"
             size="icon"
             className="h-9 w-9 shrink-0"
-            disabled={!input.trim()}
-            onClick={onSend}
+            disabled={!canSend}
           >
             <Send size={18} />
           </Button>
-        </div>
+        </form>
       </div>
     </div>
   )
 }
-
-
 
 export default ChatWindow

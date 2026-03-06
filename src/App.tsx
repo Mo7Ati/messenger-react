@@ -6,12 +6,11 @@ import ForgotPassword from "./pages/ForgotPassword/forgot-password";
 import ResetPassword from "./pages/ResetPassword/reset-password";
 import ProtectedRoute from "./components/protected-routes";
 import GuestRoutes from "./components/guest-routes";
-import ChatWindow from "./components/chat-window";
-import NewConversationView from "./pages/Contacts/components/contact-preview";
-import ExistingChatPreview from "./pages/Chats/components/chat-preview";
 import MessengerLayout from "./layouts/messenger-layout";
 import ContactPreview from "./pages/Contacts/components/contact-preview";
 import Contacts from "./pages/Contacts/contacts";
+import { EmptyState } from "./components/empty-state";
+import ChatPreview from "./pages/Chats/components/chat-preview";
 
 export function App() {
   return (
@@ -33,13 +32,14 @@ export function App() {
           <Route element={<MessengerLayout />} >
             {/* Chats */}
             <Route path="/chats" element={<Chats />}>
-              <Route path=":chatId" element={<ExistingChatPreview />} />
+              <Route index element={<EmptyState variant="no-chat" />} />
+              <Route path=":chatId" element={<ChatPreview />} />
             </Route>
 
             {/* Contacts */}
-            <Route path="contacts" element={<Contacts />} >
+            <Route path="contacts" element={<Contacts />}>
+              <Route index element={<EmptyState variant="no-contact" />} />
               <Route path=":contactId" element={<ContactPreview />} />
-              {/* <Route path="new/:userId" element={<NewConversationView />} /> */}
             </Route>
           </Route>
         </Route>
