@@ -31,4 +31,3 @@ export type Chat = {
     participants: User[]
     messages: Message[]
 }
-

@@ -1,4 +1,3 @@
-import MessengerLayout from "@/layouts/messenger-layout"
 import { Outlet, useParams } from "react-router"
 import { ChatsList } from "./components/chats-list"
 import { useIsMobile } from "@/hooks/use-mobile"

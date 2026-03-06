@@ -7,9 +7,11 @@ import ResetPassword from "./pages/ResetPassword/reset-password";
 import ProtectedRoute from "./components/protected-routes";
 import GuestRoutes from "./components/guest-routes";
 import ChatWindow from "./components/chat-window";
-import NewConversationView from "./pages/Contacts/components/new-conversation-view";
-import ExistingChatPreview from "./pages/Chats/components/existing-chat-preview";
+import NewConversationView from "./pages/Contacts/components/contact-preview";
+import ExistingChatPreview from "./pages/Chats/components/chat-preview";
 import MessengerLayout from "./layouts/messenger-layout";
+import ContactPreview from "./pages/Contacts/components/contact-preview";
+import Contacts from "./pages/Contacts/contacts";
 
 export function App() {
   return (
@@ -35,9 +37,10 @@ export function App() {
             </Route>
 
             {/* Contacts */}
-            {/* <Route path="contacts" element={<Contacts />} >
-              <Route path="new/:userId" element={<NewConversationView />} />
-            </Route> */}
+            <Route path="contacts" element={<Contacts />} >
+              <Route path=":contactId" element={<ContactPreview />} />
+              {/* <Route path="new/:userId" element={<NewConversationView />} /> */}
+            </Route>
           </Route>
         </Route>
       </Routes>
