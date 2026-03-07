@@ -25,7 +25,6 @@ import { ChatWindowSkeleton } from "./ui/chat-window-skeleton"
 
 type ChatWindowProps = {
   title: string
-  subtitle?: string
   participants: User[]
   messages: Message[]
   input: string
@@ -134,7 +133,7 @@ export const ChatWindow = ({
                     : "rounded-bl-md bg-muted text-foreground"
                 )}
               >
-                <p className="whitespace-pre-wrap break-words">{msg.body}</p>
+                <p className="whitespace-pre-wrap wrap-break">{msg.body}</p>
 
                 <p
                   className={cn(

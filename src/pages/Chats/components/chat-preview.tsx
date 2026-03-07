@@ -15,7 +15,6 @@ export default function ChatPreview() {
         <ChatWindow
             participants={screen.participants}
             title={screen.title}
-            subtitle={screen.subtitle}
             messages={screen.messages}
             input={screen.input}
             isLoading={screen.isLoading}
