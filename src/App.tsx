@@ -9,6 +9,7 @@ import GuestRoutes from "./components/guest-routes";
 import MessengerLayout from "./layouts/messenger-layout";
 import ContactPreview from "./pages/Contacts/components/contact-preview";
 import Contacts from "./pages/Contacts/contacts";
+import { ContactRequests } from "./pages/Contacts/ContactRequests";
 import { EmptyState } from "./components/empty-state";
 import ChatPreview from "./pages/Chats/components/chat-preview";
 
@@ -36,6 +37,8 @@ export function App() {
               <Route path=":chatId" element={<ChatPreview />} />
             </Route>
 
+            {/* Contact requests (full page) */}
+            <Route path="contacts/requests" element={<ContactRequests />} />
             {/* Contacts */}
             <Route path="contacts" element={<Contacts />}>
               <Route index element={<EmptyState variant="no-contact" />} />

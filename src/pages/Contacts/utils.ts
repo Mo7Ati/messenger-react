@@ -1,29 +1,33 @@
-import api from "@/lib/api"
-import type { Chat, User } from "@/types/general"
+import { contactService, type GetContactResponse, type PendingRequest, type SearchUser } from "@/services/contacts-service"
+import type { User } from "@/types/general"
 import { useQuery } from "@tanstack/react-query"
 
 
-type ShowContactResponse = {
-    chat: Chat | null,
-    contact: User,
-}
 
 export const useContacts = () => {
     return useQuery<User[], Error>({
         queryKey: ["contacts"],
-        queryFn: async () => {
-            const { data } = await api<User[]>("/contacts")
-            return data
-        },
+        queryFn: contactService.getContacts,
     })
 }
 export const useContact = (id: number, enabled: boolean) => {
-    return useQuery<ShowContactResponse, Error>({
+    return useQuery<GetContactResponse, Error>({
         queryKey: ["contact", id],
-        queryFn: async () => {
-            const { data } = await api<ShowContactResponse>(`/contacts/${id}`)
-            return data
-        },
+        queryFn: () => contactService.getContact(id),
         enabled: enabled && !!id,
+    })
+}
+
+export const useSearchUsers = (query: string) => {
+    return useQuery<SearchUser[], Error>({
+        queryKey: ["searchUsers", query],
+        queryFn: () => contactService.searchUsers(query),
+    })
+}
+
+export const usePendingRequests = () => {
+    return useQuery<PendingRequest[], Error>({
+        queryKey: ["pendingRequests"],
+        queryFn: contactService.getPendingRequests,
     })
 }

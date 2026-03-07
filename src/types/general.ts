@@ -4,6 +4,7 @@ export type ConversationType = "peer" | "group"
 export type User = {
     id: number;
     name: string;
+    username: string;
     email: string;
     avatar_url: string
     bio: string
