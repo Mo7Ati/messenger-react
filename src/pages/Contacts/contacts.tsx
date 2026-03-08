@@ -8,7 +8,7 @@ const Contacts = () => {
   const isRequestsRoute = useMatch("/contacts/requests")
 
   return (
-    <div className="p-5 flex h-full w-full">
+    <div className="flex h-full w-full md:p-10">
       {isMobile ? (
         contactId || isRequestsRoute ? (
           <div className="flex-1 min-w-0 flex flex-col">

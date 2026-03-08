@@ -28,7 +28,7 @@ export function ChatsList() {
   return (
     <Card className={cn(
       chatId && "hidden",
-      "w-full md:w-96 h-full flex flex-col overflow-hidden"
+      "w-full md:w-96 h-full flex flex-col overflow-hidden rounded-none"
     )}>
       {/* Header */}
       <CardHeader className="pb-3 shrink-0" >
@@ -36,8 +36,6 @@ export function ChatsList() {
           <CardTitle className="text-2xl font-semibold">Chats</CardTitle>
 
           <Button
-            variant="outline"
-            className="rounded-xl"
             type="button"
           >
             <Plus className="mr-2 h-4 w-4" />

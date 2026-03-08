@@ -61,8 +61,10 @@ export const ChatWindow = ({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
-      <div className="flex items-center gap-3 rounded-2xl border bg-background px-4 py-3">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+
+      {/* header */}
+      <div className="flex items-center gap-3   px-4 py-3">
         {onBack && (
           <Button
             type="button"
@@ -74,7 +76,6 @@ export const ChatWindow = ({
             <ArrowLeft size={18} />
           </Button>
         )}
-
         <div className="shrink-0">
           <AvatarGroup>
             {visibleParticipants.map((participant) => (
@@ -110,6 +111,7 @@ export const ChatWindow = ({
         </div>
       </div>
 
+      {/* messages */}
       <ScrollArea className="h-0 flex-1 px-4 py-4">
         <div className="flex flex-col gap-2">
           {messages.length === 0 && (
@@ -127,13 +129,13 @@ export const ChatWindow = ({
             >
               <div
                 className={cn(
-                  "max-w-[85%] overflow-hidden rounded-2xl px-3.5 py-2 text-sm sm:max-w-[75%] md:max-w-[60%]",
+                  "max-w-[85%] overflow-hidden rounded-2xl px-4 py-2 text-sm sm:max-w-[75%] md:max-w-[60%]",
                   msg.is_mine
                     ? "rounded-br-md bg-primary text-primary-foreground"
-                    : "rounded-bl-md bg-muted text-foreground"
+                    : "rounded-bl-md bg-background text-foreground"
                 )}
               >
-                <p className="whitespace-pre-wrap wrap-break">{msg.body}</p>
+                <p className="whitespace-pre-wrap break-all">{msg.body}</p>
 
                 <p
                   className={cn(
@@ -153,6 +155,7 @@ export const ChatWindow = ({
         </div>
       </ScrollArea>
 
+      {/* input */}
       <div className="border-t bg-background px-4 py-3">
         <form
           onSubmit={(e) => {
@@ -196,7 +199,7 @@ export const ChatWindow = ({
           </Button>
         </form>
       </div>
-    </div>
+    </div >
   )
 }
 

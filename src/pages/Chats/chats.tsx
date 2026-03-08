@@ -7,7 +7,7 @@ const Chats = () => {
   const { chatId } = useParams<{ chatId: string }>()
 
   return (
-    <div className="p-5 flex h-full w-full">
+    <div className="flex h-full w-full space-x-6 md:p-10">
       {isMobile ? (
         chatId ? (
           <div className="flex-1 min-w-0 flex flex-col">
