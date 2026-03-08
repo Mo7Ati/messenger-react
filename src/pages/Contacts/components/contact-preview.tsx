@@ -9,9 +9,7 @@ export default function ContactPreview() {
   const screen = useConversationScreen({
     mode: "contact",
     contactId: Number(contactId),
-  })
-  console.log(screen);
-  
+  })  
 
   return (
     <ChatWindow

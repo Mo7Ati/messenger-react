@@ -28,6 +28,7 @@ export const useConversationScreen = (
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [isSending, setIsSending] = useState(false)
+  const [activeChatId, setActiveChatId] = useState<number | undefined>()
 
   const chatId = args.mode === "chat" ? args.chatId : undefined
   const contactId = args.mode === "contact" ? args.contactId : undefined
@@ -71,13 +72,22 @@ export const useConversationScreen = (
     contactQuery.isPending,
   ])
 
+  // Keep the active chat id in sync with server data when it exists.
+  useEffect(() => {
+    setActiveChatId(resolved.chatId)
+  }, [resolved.chatId])
+
+  console.log(activeChatId);
   // Initialize local messages only when the active conversation changes.
   useEffect(() => {
     setMessages(resolved.initialMessages)
   }, [resolved.chatId, resolved.contactId])
 
-  // Subscribe only when we have a real chat id.
-  useConversationChannel(Number(resolved.chatId), setMessages)
+  useConversationChannel({
+    chatId: activeChatId,
+    setMessages: setMessages,
+  })
+  // console.log(activeChatId);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value)
@@ -95,6 +105,16 @@ export const useConversationScreen = (
         user_id: args.mode === "contact" ? resolved.contactId : undefined,
         message: text,
       })
+      console.log(newMessage);
+      // For new contacts without an existing chat, subscribe to the
+      // conversation created along with the first message.
+      if (
+        args.mode === "contact" &&
+        !resolved.chatId &&
+        newMessage.chat_id
+      ) {
+        setActiveChatId(newMessage.chat_id)
+      }
 
       setMessages((prev) => [...prev, newMessage])
       setInput("")

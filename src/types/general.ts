@@ -20,7 +20,7 @@ export interface Message {
     is_mine: boolean
     created_at: string
     user: User
-    conversation_id?: number
+    chat_id?: number
 }
 
 export type Chat = {
