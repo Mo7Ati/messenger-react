@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-import api, { type ApiSuccessResponse } from "@/lib/api";
+import api from "@/lib/api";
 import type { User } from "@/types/general";
 
 

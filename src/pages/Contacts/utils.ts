@@ -1,5 +1,5 @@
 import type { ApiSuccessResponse } from "@/lib/api"
-import { contactService, type GetContactResponse, type PendingRequest, type SearchUser } from "@/services/contacts-service"
+import { contactService, type GetContactResponse, type SearchUser } from "@/services/contacts-service"
 import type { User } from "@/types/general"
 import { useQuery } from "@tanstack/react-query"
 

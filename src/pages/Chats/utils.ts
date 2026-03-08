@@ -6,7 +6,7 @@ export function useChats() {
   return useQuery<Chat[], Error>({
     queryKey: ["chats"],
     queryFn: async () => {
-      const { data } = await api<Chat[]>("/conversations")
+      const { data } = await api.get<Chat[]>("/conversations")
       return data
     },
   })
@@ -16,7 +16,7 @@ export function useChat(id: number, enabled: boolean) {
   return useQuery<Chat, Error>({
     queryKey: ["chat", id],
     queryFn: async () => {
-      const { data } = await api<Chat>(`/conversations/${id}`)
+      const { data } = await api.get<Chat>(`/conversations/${id}`)
       return data
     },
     enabled: enabled && !!id,
