@@ -50,7 +50,7 @@ export const ChatWindow = ({
 }: ChatWindowProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const isMobile = useIsMobile()
-  const visualHeight = useVisualViewportHeight()
+  const visualRect = useVisualViewportHeight()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -60,9 +60,17 @@ export const ChatWindow = ({
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
   }, [])
 
-  const chatHeightStyle =
-    isMobile && visualHeight != null
-      ? { maxHeight: `${visualHeight}px` }
+  // On mobile: fix chat to the visual viewport so it doesn't scroll away when keyboard opens
+  const chatContainerStyle =
+    isMobile && visualRect != null
+      ? {
+          position: "fixed" as const,
+          top: visualRect.offsetTop,
+          left: visualRect.offsetLeft,
+          width: visualRect.width,
+          height: visualRect.height,
+          zIndex: 10,
+        }
       : undefined
 
   const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
@@ -75,8 +83,8 @@ export const ChatWindow = ({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col overflow-hidden"
-      style={chatHeightStyle}
+      className="flex h-full min-h-0 flex-col overflow-hidden bg-background"
+      style={chatContainerStyle}
     >
 
       {/* header */}
