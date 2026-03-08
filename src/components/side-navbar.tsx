@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 
 import { MessageSquare, Users, User, Sparkles, MessageCircleCode } from "lucide-react"
-import { NavLink, useLocation, useNavigate } from "react-router"
+import { NavLink, useLocation, useNavigate, useParams } from "react-router"
 import { NavUser } from "./nav-user"
 
 type NavItem = {
@@ -66,6 +66,10 @@ function NavIcon({
 export default function SideNavbar() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { chatId, contactId } = useParams()
+  const isChatWindowOpen =
+    chatId != null ||
+    (contactId != null && location.pathname !== "/contacts/requests")
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -95,13 +99,15 @@ export default function SideNavbar() {
 
       </aside>
 
-      {/* MOBILE: Bottom Bar */}
+      {/* MOBILE: Bottom Bar (hidden when a chat/conversation is open) */}
       <nav
         className={cn(
           "md:hidden",
           "fixed bottom-0 left-0 right-0 z-50",
           "border-t bg-background/95 backdrop-blur",
           "px-3 py-2",
+          "transition-transform duration-200",
+          isChatWindowOpen && "translate-y-full"
         )}
       >
         <div className="mx-auto flex max-w-md items-center justify-between">
