@@ -35,7 +35,6 @@ export function LoginForm({
         e.preventDefault();
         setLoading(true);
         setError(null);
-
         try {
             await login(data.email, data.password);
             toast.success("Logged in successfully");

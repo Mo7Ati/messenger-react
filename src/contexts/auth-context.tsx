@@ -59,8 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user);
   }
 
-
-
   const register = useCallback(async (name: string, email: string, password: string) => {
     await getCsrfCookie();
     const { data: user } = await api.post<User>("/register", { name, email, password });

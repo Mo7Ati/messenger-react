@@ -40,9 +40,13 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const socketId = echo()?.socketId?.() ?? ''
-  if (socketId) {
-    config.headers['X-Socket-ID'] = socketId
+  try {
+    const socketId = echo()?.socketId?.() ?? ''
+    if (socketId) {
+      config.headers['X-Socket-ID'] = socketId
+    }
+  } catch {
+    // Echo may not be configured yet (e.g. on login page); don't block the request
   }
   return config
 })

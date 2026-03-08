@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import {
   ArrowLeft,
   Phone,
@@ -8,6 +8,8 @@ import {
   Smile,
   Paperclip,
 } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useVisualViewportHeight } from "@/hooks/use-visual-viewport-height"
 import {
   Avatar,
   AvatarBadge,
@@ -47,10 +49,21 @@ export const ChatWindow = ({
   onSend,
 }: ChatWindowProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const isMobile = useIsMobile()
+  const visualHeight = useVisualViewportHeight()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
+
+  const scrollToBottom = useCallback(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+  }, [])
+
+  const chatHeightStyle =
+    isMobile && visualHeight != null
+      ? { maxHeight: `${visualHeight}px` }
+      : undefined
 
   const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
   const extraParticipantsCount = Math.max(participants.length - 2, 0)
@@ -61,7 +74,10 @@ export const ChatWindow = ({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div
+      className="flex h-full min-h-0 flex-col overflow-hidden"
+      style={chatHeightStyle}
+    >
 
       {/* header */}
       <div className="flex items-center gap-3   px-4 py-3">
@@ -186,6 +202,7 @@ export const ChatWindow = ({
             placeholder="Type a message..."
             value={input}
             onChange={onInputChange}
+            onFocus={scrollToBottom}
             className="h-9 min-w-0 flex-1 border-0 bg-muted/50"
           />
 
