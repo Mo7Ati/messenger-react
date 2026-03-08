@@ -58,7 +58,7 @@ export function ChatsList() {
       </CardHeader>
 
       {/* List */}
-      <CardContent className="flex-1 min-h-0 p-0 mt-7" >
+      <CardContent className="flex-1 min-h-0 p-0" >
         {
           chats.length === 0 ? <EmptyState variant="no-chats-list" compact /> :
             <ScrollArea className="h-full">

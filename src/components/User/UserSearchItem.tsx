@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { SearchUser } from "@/pages/Contacts/utils"
+import type { SearchUser } from "@/services/contacts-service"
 import { cn } from "@/lib/utils"
 
 type UserSearchItemProps = {
@@ -96,11 +96,11 @@ export function UserSearchItem({
         <p className="text-xs text-muted-foreground truncate">
           {user.username ? `@${user.username}` : user.email ?? ""}
         </p>
-        {user.bio && (
+        {/* {user.bio && (
           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
             {user.bio}
           </p>
-        )}
+        )} */}
       </div>
       <div className="shrink-0">{renderActionButton()}</div>
     </div>

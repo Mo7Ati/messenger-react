@@ -30,19 +30,18 @@ export function App() {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<MessengerLayout />} >
+          <Route element={<MessengerLayout />}>
             {/* Chats */}
             <Route path="/chats" element={<Chats />}>
               <Route index element={<EmptyState variant="no-chat" />} />
               <Route path=":chatId" element={<ChatPreview />} />
             </Route>
 
-            {/* Contact requests (full page) */}
-            <Route path="contacts/requests" element={<ContactRequests />} />
             {/* Contacts */}
             <Route path="contacts" element={<Contacts />}>
               <Route index element={<EmptyState variant="no-contact" />} />
               <Route path=":contactId" element={<ContactPreview />} />
+              <Route path="requests" element={<ContactRequests />} />
             </Route>
           </Route>
         </Route>

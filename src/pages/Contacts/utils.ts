@@ -1,13 +1,13 @@
+import type { ApiSuccessResponse } from "@/lib/api"
 import { contactService, type GetContactResponse, type PendingRequest, type SearchUser } from "@/services/contacts-service"
 import type { User } from "@/types/general"
 import { useQuery } from "@tanstack/react-query"
 
-
-
-export const useContacts = () => {
-    return useQuery<User[], Error>({
+export const useContacts = (options?: { enabled?: boolean }) => {
+    return useQuery<ApiSuccessResponse<User[]>, Error>({
         queryKey: ["contacts"],
         queryFn: contactService.getContacts,
+        enabled: options?.enabled !== false,
     })
 }
 export const useContact = (id: number, enabled: boolean) => {
@@ -26,8 +26,15 @@ export const useSearchUsers = (query: string) => {
 }
 
 export const usePendingRequests = () => {
-    return useQuery<PendingRequest[], Error>({
+    return useQuery<User[], Error>({
         queryKey: ["pendingRequests"],
         queryFn: contactService.getPendingRequests,
+    })
+}
+
+export const useSentRequests = () => {
+    return useQuery<User[], Error>({
+        queryKey: ["sentRequests"],
+        queryFn: contactService.getSentRequests,
     })
 }

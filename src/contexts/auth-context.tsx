@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-import api from "@/lib/api";
+import api, { type ApiSuccessResponse } from "@/lib/api";
 import type { User } from "@/types/general";
 
 
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     await getCsrfCookie();
-    const { data: user } = await api.post("/login", { email, password });
+    const { data: user } = await api.post<User>("/login", { email, password });
     setUser(user);
   }
 
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [getCsrfCookie]);
 
   const logout = useCallback(async () => {
-    await api("/logout", { method: "POST" });
+    await api.post("/logout");
     setUser(null);
   }, []);
 

@@ -57,22 +57,27 @@ const ChatListItem = ({ chat }: { chat: Chat }) => {
                             </span>
                         </div>
 
-                        <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                            {chat.last_message.is_read_by_all ? (
-                                <CheckCheck className="h-4 w-4 shrink-0 text-emerald-500" />
-                            ) : (
-                                <Check className="h-4 w-4 shrink-0" />
-                            )}
-                            <span className="truncate">{chat.last_message.body.length > 20 ? chat.last_message.body.slice(0, 20) + "..." : chat.last_message.body}</span>
+                        <div className="mt-1 flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                                {chat.last_message.is_read_by_all ? (
+                                    <CheckCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+                                ) : (
+                                    <Check className="h-4 w-4 shrink-0" />
+                                )}
+                                <span className="truncate">{chat.last_message.body.length > 20 ? chat.last_message.body.slice(0, 30) + "..." : chat.last_message.body}</span>
+                            </div>
+                            {/* Unread */}
+                            <div >
+                                {chat.new_messages > 0 && (
+                                    <Badge className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
+                                        {chat.new_messages}
+                                    </Badge>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Unread */}
-                    {chat.new_messages > 0 && (
-                        <Badge className="h-6 min-w-6 justify-center rounded-full px-2">
-                            {chat.new_messages}
-                        </Badge>
-                    )}
+
                 </div>
             </button>
         </li>

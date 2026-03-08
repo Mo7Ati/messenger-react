@@ -1,29 +1,33 @@
-import { useContacts } from "../utils"
+import { useContacts, usePendingRequests } from "../utils"
 import { useFilteredContacts } from "../hooks/use-filtered-contacts"
 import { ContactsSkeleton } from "./contacts-skeleton"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { toast } from "sonner"
-import { Plus, Search, MoreVertical } from "lucide-react"
+import { Plus, Search, MoreVertical, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useNavigate, useParams } from "react-router"
+import { Link, useNavigate, useParams } from "react-router"
 import { EmptyState } from "@/components/empty-state"
+import { NewContactWindow } from "./new-contact-window"
+import { useState } from "react"
+import { toast } from "sonner"
 
 const ContactsList = () => {
     const { contactId } = useParams<{ contactId: string }>()
-    const { data: contacts = [], isLoading } = useContacts()
+    const { data: response = { data: [], status: 200, success: true, extra: { pending_requests: 0 } }, isPending, isError } = useContacts()
+    const [isNewContactWindowOpen, setIsNewContactWindowOpen] = useState(false)
     const navigate = useNavigate()
 
     const {
         searchQuery,
-        setSearchQuery,
         groupedContacts,
         emptyState,
-    } = useFilteredContacts(contacts)
+        setSearchQuery,
+    } = useFilteredContacts(response.data)
 
-    if (isLoading) return <ContactsSkeleton />
+    if (isPending) return <ContactsSkeleton />
+    if (isError) return toast.error("Failed to load contacts")
 
     return (
         <Card className={cn(
@@ -31,19 +35,37 @@ const ContactsList = () => {
             "w-full md:w-96 h-full flex flex-col overflow-hidden"
         )}>
             {/* Header */}
-            <CardHeader className="pb-3 shrink-0" >
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl font-semibold">Contacts</CardTitle>
-
-                    <Button
-                        variant="outline"
-                        className="rounded-xl"
-                        type="button"
-                        onClick={() => toast.info("Coming soon")}
-                    >
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Contact
-                    </Button>
+            <CardHeader className="pb-3 shrink-0">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <CardTitle className="text-2xl font-semibold shrink-0">Contacts</CardTitle>
+                    <div className="flex flex-wrap items-center gap-2 min-w-0">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="rounded-xl shrink-0"
+                            asChild
+                        >
+                            <Link to="/contacts/requests" className="flex items-center gap-1.5">
+                                <UserPlus className="h-4 w-4 shrink-0" />
+                                <span>Requests</span>
+                                {response.extra.pending_requests > 0 && (
+                                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-medium text-primary-foreground">
+                                        {response.extra.pending_requests > 99 ? "99+" : response.extra.pending_requests}
+                                    </span>
+                                )}
+                            </Link>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-xl shrink-0"
+                            type="button"
+                            onClick={() => setIsNewContactWindowOpen(true)}
+                        >
+                            <Plus className="h-4 w-4 mr-1.5" />
+                            New Contact
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Search */}
@@ -59,7 +81,7 @@ const ContactsList = () => {
             </CardHeader>
 
             {/* List */}
-            <CardContent className="flex-1 min-h-0 p-0 mt-7" >
+            <CardContent className="flex-1 min-h-0 p-0">
                 <ScrollArea className="h-full">
                     {emptyState ? (
                         <EmptyState
@@ -106,6 +128,7 @@ const ContactsList = () => {
                         </div>
                     )}
                 </ScrollArea>
+                <NewContactWindow isOpen={isNewContactWindowOpen} onClose={() => setIsNewContactWindowOpen(false)} />
             </CardContent>
         </Card>
     )

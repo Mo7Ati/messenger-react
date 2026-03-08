@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
 import { echo } from '@laravel/echo-react'
 
 const BaseUrl = import.meta.env.VITE_API_URL;
@@ -8,7 +8,7 @@ export type ApiSuccessResponse<T> = {
   data: T;
   status: number;
   success: true;
-  extra: Record<string, unknown>;
+  extra: Record<string, any>;
 }
 
 export type ApiErrorResponse = {
@@ -16,6 +16,16 @@ export type ApiErrorResponse = {
   data: null;
   message: string;
   error_code: string;
+}
+
+/** API instance that returns unwrapped response data (no AxiosResponse). */
+export interface ApiClient {
+  get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>>
+  post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>>
+  put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>>
+  patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>>
+  delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiSuccessResponse<T>>
+  request<T = unknown>(config: AxiosRequestConfig): Promise<ApiSuccessResponse<T>>
 }
 
 const api = axios.create({
@@ -44,6 +54,6 @@ api.interceptors.response.use(
   }
 )
 
-export default api
+export default api as ApiClient
 
 

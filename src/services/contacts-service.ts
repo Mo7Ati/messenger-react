@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import api, { type ApiSuccessResponse } from "@/lib/api";
 import type { Chat, User } from "@/types/general";
 
 export type ContactStatus = "none" | "request_sent" | "request_received" | "contacts"
@@ -17,6 +17,7 @@ export type PendingRequest = {
 export type SearchUser = {
     id: number,
     name: string,
+    username: string,
     email: string,
     avatar: string,
     avatar_url: string,
@@ -24,29 +25,37 @@ export type SearchUser = {
 }
 
 export const contactService = {
-    getContacts: async (): Promise<User[]> => {
-        const { data: contacts } = await api<User[]>("/contacts")
-        return contacts;
+    getContacts: async (): Promise<ApiSuccessResponse<User[]>> => {
+        const response = await api.get<User[]>("/contacts");
+        return response;
     },
     getContact: async (id: number): Promise<GetContactResponse> => {
-        const { data } = await api<GetContactResponse>(`/contacts/${id}`);
+        const { data } = await api.get<GetContactResponse>(`/contacts/${id}`);
         return data;
     },
     searchUsers: async (query: string): Promise<SearchUser[]> => {
-        const { data: users } = await api.get<SearchUser[]>(`/contacts/search`, { params: { query } });
-        return users;
+        const { data } = await api.get<SearchUser[]>(`/contacts/search`, { params: { query } });
+        return data;
     },
-    getPendingRequests: async (): Promise<PendingRequest[]> => {
-        const { data: requests } = await api.get<PendingRequest[]>(`/contacts/requests`);
-        return requests;
+    getPendingRequests: async (): Promise<User[]> => {
+        const { data } = await api.get<User[]>(`/contacts/requests`);
+        return data;
+    },
+    /** Sent (outgoing) contact requests. Replace with real endpoint when backend supports it. */
+    getSentRequests: async (): Promise<User[]> => {
+        const { data } = await api.get<User[]>(`/contacts/sent`);
+        return data;
     },
     acceptContactRequest: async (id: number): Promise<void> => {
-        await api.post(`/contacts/requests/${id}/accept`);
+        await api.post(`/contacts/accept/${id}`);
     },
     declineContactRequest: async (id: number): Promise<void> => {
-        await api.post(`/contacts/requests/${id}/decline`);
+        await api.post(`/contacts/reject/${id}`);
     },
-    sendContactRequest: async (id: number): Promise<void> => {
-        await api.post(`/contacts/requests/${id}/send`);
+    sendContactRequest: async (userId: number): Promise<ApiSuccessResponse<null>> => {
+        const response = await api.post<null>(`/contacts/request`, {
+            receiver_id: userId,
+        });
+        return response;
     },
 }
