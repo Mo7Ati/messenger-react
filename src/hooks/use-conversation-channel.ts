@@ -9,6 +9,7 @@ export function useConversationChannel(
   chatId: number,
   setMessages: (messages: (prev: Message[]) => Message[]) => void
 ) {
+  console.log("subscribing to conversation channel for chatId", chatId);
 
   const { channel } = useEchoPresence<MessageCreatedEvent>(
     `messenger.${chatId}`,
