@@ -66,9 +66,10 @@ function NavIcon({
 export default function SideNavbar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { chatId, contactId } = useParams()
+  const { chatId, contactId, groupId } = useParams()
   const isChatWindowOpen =
     chatId != null ||
+    groupId != null ||
     (contactId != null && location.pathname !== "/contacts/requests")
 
   return (

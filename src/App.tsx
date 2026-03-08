@@ -12,6 +12,8 @@ import Contacts from "./pages/Contacts/contacts";
 import { ContactRequests } from "./pages/Contacts/ContactRequests";
 import { EmptyState } from "./components/empty-state";
 import ChatPreview from "./pages/Chats/components/chat-preview";
+import Groups from "./pages/Groups/groups";
+import GroupPreview from "./pages/Groups/components/group-preview";
 
 export function App() {
   return (
@@ -35,6 +37,12 @@ export function App() {
             <Route path="/chats" element={<Chats />}>
               <Route index element={<EmptyState variant="no-chat" />} />
               <Route path=":chatId" element={<ChatPreview />} />
+            </Route>
+
+            {/* Groups */}
+            <Route path="/groups" element={<Groups />}>
+              <Route index element={<EmptyState variant="no-group" />} />
+              <Route path=":groupId" element={<GroupPreview />} />
             </Route>
 
             {/* Contacts */}

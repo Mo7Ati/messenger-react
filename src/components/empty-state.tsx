@@ -2,12 +2,14 @@ import { MessageCircle, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router"
 
-type EmptyStateVariant =
+export type EmptyStateVariant =
   | "no-chat"
   | "no-contact"
   | "no-chats-list"
   | "no-contacts-list"
   | "no-search-results"
+  | "no-group"
+  | "no-groups-list"
 
 const config: Record<
   EmptyStateVariant,
@@ -39,6 +41,18 @@ const config: Record<
     icon: Users,
     title: "No matching results",
     description: "Try a different search term.",
+  },
+  "no-group": {
+    icon: Users,
+    title: "Select a group",
+    description: "Choose a group from the list to view the conversation.",
+  },
+  "no-groups-list": {
+    icon: Users,
+    title: "No groups yet",
+    description: "Create or join a group to see it here.",
+    cta: "New Group",
+    ctaPath: "/groups",
   },
 }
 
