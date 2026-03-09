@@ -10,7 +10,7 @@ const Chats = () => {
     <div className="flex h-full w-full space-x-6 md:p-10">
       {isMobile ? (
         chatId ? (
-          <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
+          <div className="flex-1 min-w-0 flex flex-col">
             <Outlet />
           </div>
         ) : (
