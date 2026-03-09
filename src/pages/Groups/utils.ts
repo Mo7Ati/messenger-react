@@ -1,17 +1,21 @@
 import { useDeferredValue, useMemo, useState } from "react"
 import type { Chat, User } from "@/types/general"
-import { useChats } from "@/pages/Chats/utils"
+import { useQuery } from "@tanstack/react-query"
+import { groupsService } from "@/services/groups-service"
+
 
 export function useGroups() {
-  const chatsQuery = useChats()
-  const groups = useMemo(
-    () => (chatsQuery.data ?? []).filter((c) => c.type === "group"),
-    [chatsQuery.data]
-  )
-  return {
-    ...chatsQuery,
-    data: groups,
-  }
+  return useQuery<Chat[], Error>({
+    queryKey: ["chats"],
+    queryFn: groupsService.getGroups,
+  })
+}
+
+export function useGroup(id: number) {
+  return useQuery<Chat, Error>({
+    queryKey: ["group", id],
+    queryFn: () => groupsService.getGroup(id),
+  })
 }
 
 export function useFilteredGroups(groups: Chat[] = []) {

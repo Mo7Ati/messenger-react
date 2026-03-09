@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,11 +9,14 @@ import { useParams } from "react-router"
 import { EmptyState } from "@/components/empty-state"
 import { useGroups, useFilteredGroups } from "../utils"
 import { GroupsSkeleton } from "./groups-skeleton"
-import GroupListItem from "./group-list-item"
+import { ConversationListItem } from "@/components/conversation-list-item"
+import { CreateGroupWindow } from "./create-group-window"
 
 export function GroupsList() {
   const { data: groups = [], isPending } = useGroups()
   const { groupId } = useParams<{ groupId: string }>()
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
+
   const {
     searchQuery,
     filteredGroups,
@@ -31,7 +35,7 @@ export function GroupsList() {
       <CardHeader className="pb-3 shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl font-semibold">Groups</CardTitle>
-          <Button type="button">
+          <Button type="button" onClick={() => setIsCreateGroupOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New Group
           </Button>
@@ -58,13 +62,17 @@ export function GroupsList() {
             ) : (
               <ul className="divide-y">
                 {filteredGroups.map((chat) => (
-                  <GroupListItem key={chat.id} chat={chat} />
+                  <ConversationListItem key={chat.id} chat={chat} variant="groups" />
                 ))}
               </ul>
             )}
           </ScrollArea>
         )}
       </CardContent>
+      <CreateGroupWindow
+        isOpen={isCreateGroupOpen}
+        onClose={() => setIsCreateGroupOpen(false)}
+      />
     </Card>
   )
 }

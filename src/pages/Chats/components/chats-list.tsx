@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { useParams } from "react-router"
 import { EmptyState } from "@/components/empty-state"
 import { useFilteredChats } from "../hooks/use-filtered-chats"
-import ChatListItem from "./chat-list-item"
+import { ConversationListItem } from "@/components/conversation-list-item"
 
 export function ChatsList() {
   const { data: chats = [], isPending } = useChats();
@@ -64,7 +64,7 @@ export function ChatsList() {
                 <ul className="divide-y">
                   {filteredChats.map((chat) => {
                     return (
-                      <ChatListItem key={chat.id} chat={chat} />
+                      <ConversationListItem key={chat.id} chat={chat} variant="chats" />
                     )
                   })}
                 </ul>
