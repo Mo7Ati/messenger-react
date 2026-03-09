@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { SearchUser } from "@/services/contacts-service"
+import type { SearchUser } from "@/types/contacts"
 import { cn } from "@/lib/utils"
 
 type UserSearchItemProps = {

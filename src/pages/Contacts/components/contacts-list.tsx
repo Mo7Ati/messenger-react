@@ -1,4 +1,4 @@
-import { useContacts } from "../utils"
+import { useContacts } from "../hooks/use-contacts-queries"
 import { useFilteredContacts } from "../hooks/use-filtered-contacts"
 import { ContactsSkeleton } from "./contacts-skeleton"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

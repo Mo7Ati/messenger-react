@@ -1,16 +1,11 @@
-import { useState } from "react"
 import { Link } from "react-router"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { contactService, type PendingRequest } from "@/services/contacts-service"
+import type { PendingRequest } from "@/types/contacts"
 import { ArrowLeft, Inbox, Send } from "lucide-react"
-import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { usePendingRequests, useSentRequests } from "./utils"
-import { useQueryClient } from "@tanstack/react-query"
 import type { User } from "@/types/general"
-
-type TabId = "received" | "sent"
+import { useContactRequests } from "./hooks/use-contact-requests"
 
 function RequestRow({
   request,
@@ -74,53 +69,19 @@ function RequestRow({
 }
 
 export function ContactRequests() {
-  const [activeTab, setActiveTab] = useState<TabId>("received")
-  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
-  const queryClient = useQueryClient()
-
-  const { data: received = [], isLoading: loadingReceived, error: errorReceived, refetch: refetchReceived } = usePendingRequests()
-  const { data: sent = [], isLoading: loadingSent } = useSentRequests()
-
-  const loading = activeTab === "received" ? loadingReceived : loadingSent
-  const error = activeTab === "received" ? errorReceived : null
-  const requests = activeTab === "received" ? received : sent
-
-  const handleAccept = async (request: PendingRequest) => {
-    const userId = request.user?.id ?? request.id
-    setActionLoadingId(userId)
-    try {
-      await contactService.acceptContactRequest(userId)
-      await queryClient.invalidateQueries({ queryKey: ["pendingRequests"] })
-      await queryClient.invalidateQueries({ queryKey: ["contacts"] })
-      toast.success("Contact request accepted")
-    } catch (err) {
-      const message =
-        err && typeof err === "object" && "message" in err
-          ? String((err as { message: string }).message)
-          : "Failed to accept request"
-      toast.error(message)
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
-
-  const handleDecline = async (request: PendingRequest) => {
-    const userId = request.user?.id ?? request.id
-    setActionLoadingId(userId)
-    try {
-      await contactService.declineContactRequest(userId)
-      await queryClient.invalidateQueries({ queryKey: ["pendingRequests"] })
-      toast.success("Request declined")
-    } catch (err) {
-      const message =
-        err && typeof err === "object" && "message" in err
-          ? String((err as { message: string }).message)
-          : "Failed to decline request"
-      toast.error(message)
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
+  const {
+    activeTab,
+    setActiveTab,
+    received,
+    sent,
+    loading,
+    error,
+    requests,
+    actionLoadingId,
+    handleAccept,
+    handleDecline,
+    refetchReceived,
+  } = useContactRequests()
 
   return (
     <div className="flex flex-col h-full w-full max-w-2xl mx-auto p-4 md:p-6">

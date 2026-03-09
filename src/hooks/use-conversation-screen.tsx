@@ -1,17 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
-import api from "@/lib/api"
+import { useCallback, useRef, useState } from "react"
 import { toast } from "sonner"
-import type { Chat, Message, User } from "@/types/general"
-import { useMessengerInbox } from "@/contexts/messenger-inbox-context"
-import { useAuth } from "@/contexts/auth-context"
-import { useChat } from "@/pages/Chats/utils"
-import { useContact } from "@/pages/Contacts/utils"
 import { useQueryClient } from "@tanstack/react-query"
-
-type ConversationArgs =
-  | { mode: "chat"; chatId: number }
-  | { mode: "contact"; contactId: number }
-
+import type { Message, User } from "@/types/general"
+import { messagesService } from "@/services/messages-service"
+import { updateChatLastMessage } from "@/lib/chat-cache"
+import { useConversationData, type ConversationArgs } from "./use-conversation-data"
+import { useConversationMessages } from "./use-conversation-messages"
+import { useConversationRealtime } from "./use-conversation-realtime"
+import { useConversationInput } from "./use-conversation-input"
 
 type UseConversationScreenReturn = {
   title: string
@@ -27,84 +23,30 @@ type UseConversationScreenReturn = {
 export const useConversationScreen = (
   args: ConversationArgs
 ): UseConversationScreenReturn => {
-  const [input, setInput] = useState("")
-  const [messages, setMessages] = useState<Message[]>([])
-  const [isSending, setIsSending] = useState(false)
   const queryClient = useQueryClient()
+  const [isSending, setIsSending] = useState(false)
 
+  const resolved = useConversationData(args)
+  const resolvedRef = useRef(resolved)
+  resolvedRef.current = resolved
 
-  const chatId = args.mode === "chat" ? args.chatId : undefined
-  const contactId = args.mode === "contact" ? args.contactId : undefined
+  const {
+    messages,
+    appendMessage,
+    addOptimistic,
+    replaceOptimistic,
+    removeOptimistic
+  } = useConversationMessages(resolved.chatId, resolved.contactId, resolved.initialMessages)
 
-  const { user: currentUser } = useAuth()
-  const { setActiveConversation } = useMessengerInbox()
-  const chatQuery = useChat(Number(chatId), args.mode === "chat")
-  const contactQuery = useContact(Number(contactId), args.mode === "contact")
+  useConversationRealtime(resolved.chatId, appendMessage)
 
-  const resolved = useMemo(() => {
-    if (args.mode === "chat") {
-      const chat = chatQuery.data
+  const { input, onInputChange, clearInput, currentUser } = useConversationInput(resolved.participants)
 
-      return {
-        type: "chat",
-        chatId: chat?.id,
-        title: chat?.label ?? "",
-        participants: chat?.participants ?? [],
-        initialMessages: chat?.messages ?? [],
-        isLoading: chatQuery.isLoading,
-        exists: !!chat,
-      }
-    }
-
-    const data = contactQuery.data
-
-    return {
-      type: "contact",
-      chatId: data?.chat?.id,
-      contactId: data?.contact?.id,
-      title: data?.contact?.name ?? "",
-      participants: data?.contact ? [data.contact] : [],
-      initialMessages: data?.chat?.messages ?? [],
-      isLoading: contactQuery.isLoading || contactQuery.isPending,
-      exists: !!data?.contact,
-    }
-  }, [
-    args.mode,
-    chatQuery.data,
-    chatQuery.isLoading,
-    contactQuery.data,
-    contactQuery.isLoading,
-    contactQuery.isPending,
-  ])
-
-  // Initialize local messages only when the active conversation changes.
-  useEffect(() => {
-    setMessages(resolved.initialMessages)
-  }, [resolved.chatId, resolved.contactId, resolved.initialMessages])
-
-  // Register with inbox so MessageCreated for this conversation appends here.
-  const appendMessage = useCallback((message: Message) => {
-    setMessages((prev) => {
-      if (prev.some((m) => m.id === message.id)) return prev
-      return [...prev, message]
-    })
-  }, [])
-
-  useEffect(() => {
-    setActiveConversation(resolved.chatId, appendMessage)
-    return () => setActiveConversation(undefined, (_msg: Message) => { })
-  }, [resolved.chatId, appendMessage, setActiveConversation])
-
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value)
-  }
-
-  const onSend = async () => {
+  const onSend = useCallback(async () => {
     const text = input.trim()
     if (!text || isSending) return
 
     const pendingId = "pending-" + Date.now()
-
     const optimisticMessage: Message = {
       id: pendingId,
       body: text,
@@ -124,68 +66,40 @@ export const useConversationScreen = (
         }
         : ({} as User),
     }
-    setMessages((prev) => [...prev, optimisticMessage])
-    setInput("")
+
+    addOptimistic(optimisticMessage)
+    clearInput()
     setIsSending(true)
 
     try {
+      const { chatId, contactId } = resolvedRef.current
+      const isExistingChatSend = args.mode === "chat" || (args.mode === "contact" && !!chatId)
+
       let newMessage: Message
 
-      const isExistingChatSend = args.mode === "chat" || (args.mode === "contact" && !!resolved.chatId)
-
       if (isExistingChatSend) {
-        if (!resolved.chatId) {
-          throw new Error("Missing chatId for chat send")
-        }
-        const { data } = await api.post<Message>("/messages", {
+        if (!chatId) throw new Error("Missing chatId for chat send")
+        newMessage = await messagesService.sendToConversation({
           message: text,
-          conversation_id: resolved.chatId,
+          conversation_id: chatId,
         })
-        newMessage = data
       } else {
-        if (!resolved.contactId) {
-          throw new Error("Missing contactId for first contact send")
-        }
-        const { data } = await api.post<Message>("/messages", {
+        if (!contactId) throw new Error("Missing contactId for first contact send")
+        newMessage = await messagesService.sendToUser({
           message: text,
-          user_id: resolved.contactId,
+          user_id: contactId,
         })
-        newMessage = data
       }
 
-      if (args.mode === "contact" && !resolved.chatId && newMessage.chat_id) {
-        resolved.chatId = newMessage.chat_id;
-        resolved.initialMessages = [...resolved.initialMessages, newMessage];
-      }
-
-      syncChatsList(newMessage);
-
-      setMessages((prev) =>
-        prev.map((m) => (m.id === pendingId ? newMessage : m))
-      )
+      updateChatLastMessage(queryClient, newMessage)
+      replaceOptimistic(pendingId, newMessage)
     } catch {
-      setMessages((prev) => prev.filter((m) => m.id !== pendingId))
+      removeOptimistic(pendingId)
       toast.error("Failed to send message")
     } finally {
       setIsSending(false)
     }
-  }
-
-  const syncChatsList = useCallback((message: Message) => {
-    queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
-      if (!chats) return chats
-      return chats.map(c => {
-        if (c.id === message.chat_id) {
-          return {
-            ...c,
-            last_message: message,
-            new_messages: 0,
-          }
-        }
-        return c;
-      })
-    })
-  }, [queryClient])
+  }, [input, isSending, currentUser, args.mode, queryClient, addOptimistic, clearInput, replaceOptimistic, removeOptimistic])
 
   return {
     title: resolved.title,

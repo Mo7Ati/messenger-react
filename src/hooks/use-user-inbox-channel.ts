@@ -8,11 +8,7 @@ export type MessageCreatedPayload = {
 
 const CHANNEL_PREFIX = "messenger.user."
 
-/**
- * Subscribes once to the current user's private channel for all real-time messages.
- * Listens for MessageCreated and calls onMessage with the payload.
- * Caller must leave the channel on logout / unmount (cleanup in useEffect).
- */
+
 export function useUserInboxChannel(
   userId: number | null | undefined,
   onMessage: (payload: MessageCreatedPayload) => void

@@ -1,76 +1,30 @@
-import { useState, useEffect, useCallback } from "react"
+import { useEffect } from "react"
 import { X, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserSearchItem } from "@/components/User/UserSearchItem"
-import { contactService, type SearchUser } from "@/services/contacts-service"
-import { useNavigate } from "react-router"
-import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { useNewContactSearch } from "../hooks/use-new-contact-search"
 
 type NewContactWindowProps = {
   isOpen: boolean
   onClose: () => void
 }
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value)
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay)
-    return () => clearTimeout(timer)
-  }, [value, delay])
-  return debouncedValue
-}
-
 export function NewContactWindow({ isOpen, onClose }: NewContactWindowProps) {
-  const navigate = useNavigate()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<SearchUser[]>([])
-  const [loading, setLoading] = useState(false)
-  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  const debouncedQuery = useDebounce(searchQuery.trim(), 500)
-
-  const fetchSearch = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setSearchResults([])
-      return
-    }
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await contactService.searchUsers(query)
-      setSearchResults(Array.isArray(data) ? data : [])
-    } catch (err) {
-      const message = err && typeof err === "object" && "message" in err
-        ? String((err as { message: string }).message)
-        : "Failed to search users"
-      setError(message)
-      setSearchResults([])
-      toast.error(message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (debouncedQuery.length >= 2) {
-      fetchSearch(debouncedQuery)
-    } else {
-      setSearchResults([])
-      setError(null)
-    }
-  }, [debouncedQuery, fetchSearch])
-
-  useEffect(() => {
-    if (!isOpen) {
-      setSearchQuery("")
-      setSearchResults([])
-      setError(null)
-    }
-  }, [isOpen])
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    loading,
+    error,
+    actionLoadingId,
+    debouncedQuery,
+    handleSendRequest,
+    handleAcceptRequest,
+    handleStartChat,
+  } = useNewContactSearch(isOpen, onClose)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -85,51 +39,6 @@ export function NewContactWindow({ isOpen, onClose }: NewContactWindowProps) {
       document.body.style.overflow = ""
     }
   }, [isOpen, onClose])
-
-  const handleSendRequest = async (user: SearchUser) => {
-    setActionLoadingId(user.id)
-    try {
-      await contactService.sendContactRequest(user.id)
-      setSearchResults((prev) =>
-        prev.map((u) =>
-          u.id === user.id ? { ...u, contact_status: "request_sent" as const } : u
-        )
-      )
-      toast.success("Contact request sent")
-    } catch (err) {
-      const message = err && typeof err === "object" && "message" in err
-        ? String((err as { message: string }).message)
-        : "Failed to send request"
-      toast.error(message)
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
-
-  const handleAcceptRequest = async (user: SearchUser) => {
-    setActionLoadingId(user.id)
-    try {
-      await contactService.acceptContactRequest(user.id)
-      setSearchResults((prev) =>
-        prev.map((u) =>
-          u.id === user.id ? { ...u, contact_status: "contacts" as const } : u
-        )
-      )
-      toast.success("Contact added")
-    } catch (err) {
-      const message = err && typeof err === "object" && "message" in err
-        ? String((err as { message: string }).message)
-        : "Failed to accept request"
-      toast.error(message)
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
-
-  const handleStartChat = (user: SearchUser) => {
-    onClose()
-    navigate(`/contacts/${user.id}`, { state: { contact: user } })
-  }
 
   if (!isOpen) return null
 

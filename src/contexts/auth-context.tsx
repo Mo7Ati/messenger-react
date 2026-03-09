@@ -7,22 +7,19 @@ import {
   type ReactNode,
 } from "react";
 
-import api from "@/lib/api";
+import { authService } from "@/services/auth-service";
 import type { User } from "@/types/general";
-
-
 
 type AuthContextValue = {
   user: User | null;
   authLoading: boolean;
+  setUser: (user: User | null) => void;
 
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
-  /** Laravel: POST /forgot-password { email } */
   forgotPassword: (email: string) => Promise<void>;
-  /** Laravel: POST /reset-password { email, token, password, password_confirmation } */
   resetPassword: (email: string, token: string, password: string, password_confirmation: string) => Promise<void>;
 };
 
@@ -34,9 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = useCallback(async () => {
     try {
-      const { data: user } = await api.get<User>("/user");
+      const user = await authService.checkAuth();
       setUser(user);
-    } catch (err) {
+    } catch {
       setUser(null);
     } finally {
       setAuthLoading(false);
@@ -48,49 +45,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, [checkAuth]);
 
-  const getCsrfCookie = useCallback(async () => {
-    await api.get("/sanctum/csrf-cookie", { baseURL: `${import.meta.env.VITE_API_URL}` });
+  const login = useCallback(async (email: string, password: string) => {
+    const user = await authService.login(email, password);
+    setUser(user);
   }, []);
 
-
-  const login = async (email: string, password: string) => {
-    await getCsrfCookie();
-    const { data: user } = await api.post<User>("/login", { email, password });
-    setUser(user);
-  }
-
   const register = useCallback(async (name: string, email: string, password: string) => {
-    await getCsrfCookie();
-    const { data: user } = await api.post<User>("/register", { name, email, password });
+    const user = await authService.register(name, email, password);
     setUser(user);
-  }, [getCsrfCookie]);
+  }, []);
 
   const logout = useCallback(async () => {
-    await api.post("/logout");
+    await authService.logout();
     setUser(null);
   }, []);
 
   const forgotPassword = useCallback(async (email: string) => {
-    await getCsrfCookie();
-    await api.post("/forgot-password", { email });
-  }, [getCsrfCookie]);
+    await authService.forgotPassword(email);
+  }, []);
 
   const resetPassword = useCallback(
     async (email: string, token: string, password: string, password_confirmation: string) => {
-      await getCsrfCookie();
-      await api.post("/reset-password", {
-        email,
-        token,
-        password,
-        password_confirmation,
-      });
+      await authService.resetPassword(email, token, password, password_confirmation);
     },
-    [getCsrfCookie]
+    []
   );
 
   const value: AuthContextValue = {
     user,
     authLoading,
+    setUser,
     login,
     register,
     logout,

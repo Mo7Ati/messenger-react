@@ -1,28 +1,6 @@
 import api, { type ApiSuccessResponse } from "@/lib/api";
-import type { Chat, User } from "@/types/general";
-
-export type ContactStatus = "none" | "request_sent" | "request_received" | "contacts"
-
-export type GetContactResponse = {
-    chat: Chat | null,
-    contact: User,
-}
-
-export type PendingRequest = {
-    id: number,
-    user: User,
-}
-
-
-export type SearchUser = {
-    id: number,
-    name: string,
-    username: string,
-    email: string,
-    avatar: string,
-    avatar_url: string,
-    contact_status: ContactStatus,
-}
+import type { User } from "@/types/general";
+import type { GetContactResponse, SearchUser } from "@/types/contacts";
 
 export const contactService = {
     getContacts: async (): Promise<ApiSuccessResponse<User[]>> => {

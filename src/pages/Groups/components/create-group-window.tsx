@@ -1,14 +1,11 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { MultiSelect } from "@/components/multi-select"
-import { useContacts } from "@/pages/Contacts/utils"
-import { useCreateGroup } from "@/pages/Groups/utils"
-import { useNavigate } from "react-router"
-import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { useCreateGroupForm } from "../hooks/use-create-group-form"
 
 type CreateGroupWindowProps = {
   isOpen: boolean
@@ -16,22 +13,15 @@ type CreateGroupWindowProps = {
 }
 
 export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
-  const navigate = useNavigate()
-  const { data: contactsResponse } = useContacts()
-  const contacts = contactsResponse?.data ?? []
-  const createGroup = useCreateGroup()
-
-  const [label, setLabel] = useState("")
-  // const [avatarUrl, setAvatarUrl] = useState("")
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-
-  useEffect(() => {
-    if (!isOpen) {
-      setLabel("")
-      // setAvatarUrl("")
-      setSelectedIds([])
-    }
-  }, [isOpen])
+  const {
+    label,
+    setLabel,
+    selectedIds,
+    setSelectedIds,
+    participantOptions,
+    isPending,
+    handleSubmit,
+  } = useCreateGroupForm(isOpen, onClose)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -46,43 +36,6 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
       document.body.style.overflow = ""
     }
   }, [isOpen, onClose])
-
-  const participantOptions = contacts.map((c) => ({
-    label: c.name,
-    value: String(c.id),
-  }))
-
-  const handleSubmit = () => {
-    const trimmedLabel = label.trim()
-    if (!trimmedLabel) {
-      toast.error("Enter a group name")
-      return
-    }
-    if (selectedIds.length === 0) {
-      toast.error("Select at least one member")
-      return
-    }
-
-    createGroup.mutate({
-      label: trimmedLabel,
-      participants_ids: selectedIds.map(Number),
-    },
-      {
-        onSuccess: (created) => {
-          onClose()
-          navigate(`/groups/${created.id}`)
-          toast.success("Group created")
-        },
-        onError: (err) => {
-          const message =
-            err && typeof err === "object" && "message" in err
-              ? String((err as { message: string }).message)
-              : "Failed to create group"
-          toast.error(message)
-        },
-      }
-    )
-  }
 
   if (!isOpen) return null
 
@@ -135,24 +88,6 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
             />
           </div>
 
-          {/* <div className="space-y-2">
-            <label className="text-sm font-medium">Group avatar</label>
-            <div className="flex items-center gap-3">
-              <Avatar className="h-12 w-12 shrink-0 rounded-full">
-                <AvatarImage src={avatarUrl || undefined} alt={label || "Group"} />
-                <AvatarFallback className="rounded-full text-sm">
-                  {(label || "G").slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <Input
-                className="rounded-xl flex-1 min-w-0"
-                placeholder="Avatar URL (optional)"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-              />
-            </div>
-          </div> */}
-
           <div className="space-y-4">
             <Label htmlFor="participants">Participants</Label>
             <MultiSelect
@@ -178,9 +113,9 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
               type="button"
               className="flex-1 rounded-xl"
               onClick={handleSubmit}
-              disabled={createGroup.isPending}
+              disabled={isPending}
             >
-              {createGroup.isPending ? "Creating…" : "Create group"}
+              {isPending ? "Creating…" : "Create group"}
             </Button>
           </div>
         </div>

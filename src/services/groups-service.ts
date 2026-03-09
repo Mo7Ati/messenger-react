@@ -1,11 +1,6 @@
 import api from "@/lib/api"
 import type { Chat } from "@/types/general"
-
-export type CreateGroupParams = {
-  label: string
-  avatar_url?: string
-  participants_ids: number[]
-}
+import type { CreateGroupParams } from "@/types/groups"
 
 export const groupsService = {
   getGroups: async (): Promise<Chat[]> => {
