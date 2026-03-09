@@ -9,8 +9,6 @@ import {
   Paperclip,
 } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/use-mobile"
-import { useVisualViewportHeight } from "@/hooks/use-visual-viewport-height"
 import {
   Avatar,
   AvatarBadge,
@@ -60,8 +58,6 @@ const ChatWindow = ({
   onEmojiClick,
 }: ChatWindowProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null)
-  const isMobile = useIsMobile()
-  const visualViewportHeight = useVisualViewportHeight()
 
   const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
   const extraParticipantsCount = Math.max(participants.length - 2, 0)
@@ -78,23 +74,12 @@ const ChatWindow = ({
     scrollToBottom("smooth")
   }, [messages.length, scrollToBottom])
 
-  const containerStyle = useMemo(() => {
-    if (!isMobile || !visualViewportHeight) return undefined
-
-    return {
-      height: `${visualViewportHeight}px`,
-    }
-  }, [isMobile, visualViewportHeight])
-
   if (isLoading) {
     return <ChatWindowSkeleton />
   }
 
   return (
-    <div
-      className="flex h-full min-h-0 flex-col overflow-hidden bg-background"
-      style={containerStyle}
-    >
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background">
       {/* Header */}
       <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
         {onBack && (
