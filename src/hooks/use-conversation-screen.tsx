@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import api from "@/lib/api"
 import { toast } from "sonner"
-import type { Message, User } from "@/types/general"
+import type { Chat, Message, User } from "@/types/general"
 import { useMessengerInbox } from "@/contexts/messenger-inbox-context"
 import { useAuth } from "@/contexts/auth-context"
 import { useChat } from "@/pages/Chats/utils"
 import { useContact } from "@/pages/Contacts/utils"
+import { useQueryClient } from "@tanstack/react-query"
 
 type ConversationArgs =
   | { mode: "chat"; chatId: number }
@@ -29,6 +30,8 @@ export const useConversationScreen = (
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [isSending, setIsSending] = useState(false)
+  const queryClient = useQueryClient()
+
 
   const chatId = args.mode === "chat" ? args.chatId : undefined
   const contactId = args.mode === "contact" ? args.contactId : undefined
@@ -128,8 +131,7 @@ export const useConversationScreen = (
     try {
       let newMessage: Message
 
-      const isExistingChatSend =
-        args.mode === "chat" || (args.mode === "contact" && !!resolved.chatId)
+      const isExistingChatSend = args.mode === "chat" || (args.mode === "contact" && !!resolved.chatId)
 
       if (isExistingChatSend) {
         if (!resolved.chatId) {
@@ -156,6 +158,8 @@ export const useConversationScreen = (
         resolved.initialMessages = [...resolved.initialMessages, newMessage];
       }
 
+      syncChatsList(newMessage);
+
       setMessages((prev) =>
         prev.map((m) => (m.id === pendingId ? newMessage : m))
       )
@@ -166,6 +170,22 @@ export const useConversationScreen = (
       setIsSending(false)
     }
   }
+
+  const syncChatsList = useCallback((message: Message) => {
+    queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
+      if (!chats) return chats
+      return chats.map(c => {
+        if (c.id === message.chat_id) {
+          return {
+            ...c,
+            last_message: message,
+            new_messages: 0,
+          }
+        }
+        return c;
+      })
+    })
+  }, [queryClient])
 
   return {
     title: resolved.title,
