@@ -2,14 +2,12 @@ import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MultiSelect } from "@/components/multi-select"
 import { useContacts } from "@/pages/Contacts/utils"
+import { useCreateGroup } from "@/pages/Groups/utils"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { groupsService } from "@/services/groups-service"
-import { useQueryClient } from "@tanstack/react-query"
 import { Label } from "@/components/ui/label"
 
 type CreateGroupWindowProps = {
@@ -21,12 +19,11 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
   const navigate = useNavigate()
   const { data: contactsResponse } = useContacts()
   const contacts = contactsResponse?.data ?? []
-  const queryClient = useQueryClient()
+  const createGroup = useCreateGroup()
 
   const [label, setLabel] = useState("")
   // const [avatarUrl, setAvatarUrl] = useState("")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (!isOpen) {
@@ -55,7 +52,7 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
     value: String(c.id),
   }))
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const trimmedLabel = label.trim()
     if (!trimmedLabel) {
       toast.error("Enter a group name")
@@ -66,25 +63,25 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
       return
     }
 
-    setIsSubmitting(true)
-    try {
-      const created = await groupsService.createGroup({
-        label: trimmedLabel,
-        // avatar_url: avatarUrl.trim() || undefined,
-        participants_ids: selectedIds.map(Number),
-      })
-      onClose()
-      navigate(`/groups/${created.id}`)
-      toast.success("Group created")
-    } catch (err) {
-      const message =
-        err && typeof err === "object" && "message" in err
-          ? String((err as { message: string }).message)
-          : "Failed to create group"
-      toast.error(message)
-    } finally {
-      setIsSubmitting(false)
-    }
+    createGroup.mutate({
+      label: trimmedLabel,
+      participants_ids: selectedIds.map(Number),
+    },
+      {
+        onSuccess: (created) => {
+          onClose()
+          navigate(`/groups/${created.id}`)
+          toast.success("Group created")
+        },
+        onError: (err) => {
+          const message =
+            err && typeof err === "object" && "message" in err
+              ? String((err as { message: string }).message)
+              : "Failed to create group"
+          toast.error(message)
+        },
+      }
+    )
   }
 
   if (!isOpen) return null
@@ -164,7 +161,7 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
               placeholder="Select members"
               defaultValue={selectedIds}
               searchable
-              className="w-full"
+              className="w-full border border-input rounded-xl min-h-10"
             />
           </div>
 
@@ -181,9 +178,9 @@ export function CreateGroupWindow({ isOpen, onClose }: CreateGroupWindowProps) {
               type="button"
               className="flex-1 rounded-xl"
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={createGroup.isPending}
             >
-              {isSubmitting ? "Creating…" : "Create group"}
+              {createGroup.isPending ? "Creating…" : "Create group"}
             </Button>
           </div>
         </div>

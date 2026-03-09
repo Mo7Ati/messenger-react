@@ -1,13 +1,25 @@
 import { useDeferredValue, useMemo, useState } from "react"
 import type { Chat, User } from "@/types/general"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { groupsService } from "@/services/groups-service"
+import type { CreateGroupParams } from "@/services/groups-service"
 
+const groupsQueryKey = ["groups"] as const
 
 export function useGroups() {
   return useQuery<Chat[], Error>({
-    queryKey: ["chats"],
+    queryKey: groupsQueryKey,
     queryFn: groupsService.getGroups,
+  })
+}
+
+export function useCreateGroup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (params: CreateGroupParams) => groupsService.createGroup(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupsQueryKey })
+    },
   })
 }
 
