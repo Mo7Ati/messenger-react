@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import api from "@/lib/api"
 import { toast } from "sonner"
 import type { Message, User } from "@/types/general"
-import { useConversationChannel } from "@/hooks/use-conversation-channel"
+import { useMessengerInbox } from "@/contexts/messenger-inbox-context"
+import { useAuth } from "@/contexts/auth-context"
 import { useChat } from "@/pages/Chats/utils"
 import { useContact } from "@/pages/Contacts/utils"
 
@@ -28,11 +29,12 @@ export const useConversationScreen = (
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [isSending, setIsSending] = useState(false)
-  const [activeChatId, setActiveChatId] = useState<number | undefined>()
 
   const chatId = args.mode === "chat" ? args.chatId : undefined
   const contactId = args.mode === "contact" ? args.contactId : undefined
 
+  const { user: currentUser } = useAuth()
+  const { setActiveConversation } = useMessengerInbox()
   const chatQuery = useChat(Number(chatId), args.mode === "chat")
   const contactQuery = useContact(Number(contactId), args.mode === "contact")
 
@@ -72,22 +74,23 @@ export const useConversationScreen = (
     contactQuery.isPending,
   ])
 
-  // Keep the active chat id in sync with server data when it exists.
-  useEffect(() => {
-    setActiveChatId(resolved.chatId)
-  }, [resolved.chatId])
-
-  console.log(activeChatId);
   // Initialize local messages only when the active conversation changes.
   useEffect(() => {
     setMessages(resolved.initialMessages)
-  }, [resolved.chatId, resolved.contactId])
+  }, [resolved.chatId, resolved.contactId, resolved.initialMessages])
 
-  useConversationChannel({
-    chatId: activeChatId,
-    setMessages: setMessages,
-  })
-  // console.log(activeChatId);
+  // Register with inbox so MessageCreated for this conversation appends here.
+  const appendMessage = useCallback((message: Message) => {
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === message.id)) return prev
+      return [...prev, message]
+    })
+  }, [])
+
+  useEffect(() => {
+    setActiveConversation(resolved.chatId, appendMessage)
+    return () => setActiveConversation(undefined, (_msg: Message) => { })
+  }, [resolved.chatId, appendMessage, setActiveConversation])
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value)
@@ -97,29 +100,67 @@ export const useConversationScreen = (
     const text = input.trim()
     if (!text || isSending) return
 
-    try {
-      setIsSending(true)
+    const pendingId = "pending-" + Date.now()
 
-      const { data: newMessage } = await api.post<Message>("/messages", {
-        conversation_id: args.mode === "chat" ? resolved.chatId : undefined,
-        user_id: args.mode === "contact" ? resolved.contactId : undefined,
-        message: text,
-      })
-      console.log(newMessage);
-      // For new contacts without an existing chat, subscribe to the
-      // conversation created along with the first message.
-      if (
-        args.mode === "contact" &&
-        !resolved.chatId &&
-        newMessage.chat_id
-      ) {
-        setActiveChatId(newMessage.chat_id)
+    const optimisticMessage: Message = {
+      id: pendingId,
+      body: text,
+      user_id: currentUser?.id ?? 0,
+      is_read_by_all: false,
+      is_mine: true,
+      created_at: new Date().toISOString(),
+      user: currentUser
+        ? {
+          id: currentUser.id,
+          name: currentUser.name,
+          username: currentUser.username,
+          email: currentUser.email,
+          avatar_url: currentUser.avatar_url,
+          bio: currentUser.bio,
+          last_active_at: currentUser.last_active_at,
+        }
+        : ({} as User),
+    }
+    setMessages((prev) => [...prev, optimisticMessage])
+    setInput("")
+    setIsSending(true)
+
+    try {
+      let newMessage: Message
+
+      const isExistingChatSend =
+        args.mode === "chat" || (args.mode === "contact" && !!resolved.chatId)
+
+      if (isExistingChatSend) {
+        if (!resolved.chatId) {
+          throw new Error("Missing chatId for chat send")
+        }
+        const { data } = await api.post<Message>("/messages", {
+          message: text,
+          conversation_id: resolved.chatId,
+        })
+        newMessage = data
+      } else {
+        if (!resolved.contactId) {
+          throw new Error("Missing contactId for first contact send")
+        }
+        const { data } = await api.post<Message>("/messages", {
+          message: text,
+          user_id: resolved.contactId,
+        })
+        newMessage = data
       }
 
-      setMessages((prev) => [...prev, newMessage])
-      setInput("")
+      if (args.mode === "contact" && !resolved.chatId && newMessage.chat_id) {
+        resolved.chatId = newMessage.chat_id;
+        resolved.initialMessages = [...resolved.initialMessages, newMessage];
+      }
 
+      setMessages((prev) =>
+        prev.map((m) => (m.id === pendingId ? newMessage : m))
+      )
     } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== pendingId))
       toast.error("Failed to send message")
     } finally {
       setIsSending(false)

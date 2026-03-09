@@ -12,7 +12,7 @@ export type User = {
     [key: string]: unknown;
 };
 
-export interface Message {
+export type Message = {
     id: string
     body: string
     user_id: number
