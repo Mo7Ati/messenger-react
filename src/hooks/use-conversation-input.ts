@@ -1,20 +1,43 @@
-import { useState } from "react"
-import { echo } from "@laravel/echo-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
-import type { User } from "@/types/general"
+import { usePublicChannel } from "./use-public-channel"
 
-export function useConversationInput(participants: User[]) {
+const TYPING_WHISPER_DEBOUNCE_MS = 300
+
+export function useConversationInput(chatId: number | undefined) {
     const [input, setInput] = useState("")
     const { user: currentUser } = useAuth()
+    const { channel } = usePublicChannel()
+    const whisperTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        participants.forEach((participant) => {
-            echo().private(`messenger.user.${participant.id}`).whisper("typing", {
-                user: currentUser,
-            })
-        })
-        setInput(e.target.value)
-    }
+    useEffect(() => {
+        return () => {
+            if (whisperTimeoutRef.current) {
+                clearTimeout(whisperTimeoutRef.current)
+            }
+        }
+    }, [])
+
+    const onInputChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            setInput(e.target.value)
+
+            if (!chatId) return
+
+            if (whisperTimeoutRef.current) {
+                clearTimeout(whisperTimeoutRef.current)
+            }
+
+            whisperTimeoutRef.current = setTimeout(() => {
+                channel.whisper("typing", {
+                    user: currentUser,
+                    chatId,
+                })
+                whisperTimeoutRef.current = null
+            }, TYPING_WHISPER_DEBOUNCE_MS)
+        },
+        [chatId, channel, currentUser]
+    )
 
     const clearInput = () => setInput("")
 

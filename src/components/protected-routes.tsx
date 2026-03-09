@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "@/contexts/auth-context";
+import { usePublicChannel } from "@/hooks/use-public-channel";
 
 export default function ProtectedRoute() {
   const { user, authLoading } = useAuth();
@@ -17,5 +18,7 @@ export default function ProtectedRoute() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  usePublicChannel()
+  
   return <Outlet />;
 }

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import type { Chat } from "@/types/general"
 import { Check, CheckCheck } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
+import { useTyping } from "@/contexts/typing-context"
 
 export type ConversationListVariant = "chats" | "groups"
 
@@ -27,11 +28,26 @@ type ConversationListItemProps = {
   variant: ConversationListVariant
 }
 
+function formatTypingLabel(typingUsers: { name: string }[]): string {
+  if (typingUsers.length === 0) return ""
+  if (typingUsers.length === 1) return `${typingUsers[0].name} is typing`
+  if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing`
+  return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing`
+}
+
 export function ConversationListItem({ chat, variant }: ConversationListItemProps) {
   const navigate = useNavigate()
   const params = useParams<{ chatId?: string; groupId?: string }>()
   const { path, paramKey } = variantConfig[variant]
   const activeId = params[paramKey]
+  const { getTypingUsers } = useTyping()
+  const typingUsers = getTypingUsers(chat.id)
+  const typingLabel =
+    typingUsers.length > 0
+      ? chat.type === "group"
+        ? formatTypingLabel(typingUsers)
+        : "typing"
+      : ""
 
   return (
     <li key={chat.id}>
@@ -74,8 +90,10 @@ export function ConversationListItem({ chat, variant }: ConversationListItemProp
             </div>
 
             <div className="mt-1 flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                {chat.last_message ? (
+              <div className="flex items-center gap-1 min-w-0">
+                {typingLabel ? (
+                  <span className="truncate italic text-primary/80">{typingLabel}</span>
+                ) : chat.last_message ? (
                   <>
                     {chat.last_message.is_read_by_all ? (
                       <CheckCheck className="h-4 w-4 shrink-0 text-emerald-500" />

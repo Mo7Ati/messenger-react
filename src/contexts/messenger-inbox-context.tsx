@@ -18,7 +18,7 @@ type MessengerInboxContextValue = {
     conversationId: number | undefined,
     appendMessage: AppendMessageFn
   ) => void
-  onMessageReceived: (payload: MessageCreatedPayload) => void
+  onMessageReceived: (payload: MessageCreatedPayload) => void,
 }
 
 const MessengerInboxContext = createContext<MessengerInboxContextValue | null>(

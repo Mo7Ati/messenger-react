@@ -10,6 +10,7 @@ import { useConversationRealtime } from "./use-conversation-realtime"
 import { useConversationInput } from "./use-conversation-input"
 
 type UseConversationScreenReturn = {
+  chatId: number | undefined
   title: string
   participants: User[]
   messages: Message[]
@@ -40,7 +41,12 @@ export const useConversationScreen = (
 
   useConversationRealtime(resolved.chatId, appendMessage)
 
-  const { input, onInputChange, clearInput, currentUser } = useConversationInput(resolved.participants)
+  const {
+    input,
+    onInputChange,
+    clearInput,
+    currentUser
+  } = useConversationInput(resolved.chatId)
 
   const onSend = useCallback(async () => {
     const text = input.trim()
@@ -102,6 +108,7 @@ export const useConversationScreen = (
   }, [input, isSending, currentUser, args.mode, queryClient, addOptimistic, clearInput, replaceOptimistic, removeOptimistic])
 
   return {
+    chatId: resolved.chatId,
     title: resolved.title,
     participants: resolved.participants,
     messages,

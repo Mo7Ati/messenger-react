@@ -31,9 +31,17 @@ type ChatWindowProps = {
   input: string
   isLoading?: boolean
   isSending?: boolean
+  typingUsers?: User[]
   onBack?: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   onSend: () => void
+}
+
+function formatTypingHeader(typingUsers: User[]): string {
+  if (typingUsers.length === 0) return ""
+  if (typingUsers.length === 1) return `${typingUsers[0].name} is typing...`
+  if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing...`
+  return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing...`
 }
 
 export const ChatWindow = ({
@@ -43,6 +51,7 @@ export const ChatWindow = ({
   input,
   isLoading,
   isSending,
+  typingUsers = [],
   onBack,
   onInputChange,
   onSend,
@@ -119,6 +128,13 @@ export const ChatWindow = ({
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{title}</p>
+          {typingUsers.length > 0 && (
+            <p className="truncate text-xs text-muted-foreground italic">
+              {participants.length > 1
+                ? formatTypingHeader(typingUsers)
+                : "typing..."}
+            </p>
+          )}
         </div>
 
         <div className="shrink-0 flex items-center gap-1">
