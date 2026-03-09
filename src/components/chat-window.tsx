@@ -27,6 +27,7 @@ import { ChatWindowSkeleton } from "./ui/chat-window-skeleton"
 type ChatWindowProps = {
   title: string
   participants: User[]
+  isGroupChat?: boolean
   messages: Message[]
   input: string
   isLoading?: boolean
@@ -35,6 +36,24 @@ type ChatWindowProps = {
   onBack?: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   onSend: () => void
+}
+
+const PARTICIPANT_NAME_COLORS = [
+  "text-red-700 dark:text-red-400",
+  "text-blue-700 dark:text-blue-400",
+  "text-emerald-700 dark:text-emerald-400",
+  "text-violet-700 dark:text-violet-400",
+  "text-amber-700 dark:text-amber-400",
+  "text-cyan-700 dark:text-cyan-400",
+  "text-rose-700 dark:text-rose-400",
+  "text-indigo-700 dark:text-indigo-400",
+  "text-teal-700 dark:text-teal-400",
+  "text-orange-700 dark:text-orange-400",
+] as const
+
+function getParticipantNameColor(userId: number): string {
+  const index = Math.abs(userId) % PARTICIPANT_NAME_COLORS.length
+  return PARTICIPANT_NAME_COLORS[index]
 }
 
 function formatTypingHeader(typingUsers: User[]): string {
@@ -47,6 +66,7 @@ function formatTypingHeader(typingUsers: User[]): string {
 export const ChatWindow = ({
   participants,
   title,
+  isGroupChat = false,
   messages,
   input,
   isLoading,
@@ -161,34 +181,60 @@ export const ChatWindow = ({
             </div>
           )}
 
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn("flex w-full", msg.is_mine ? "justify-end" : "justify-start")}
-            >
-              <div
-                className={cn(
-                  "min-w-0 max-w-[85%] rounded-2xl px-4 py-2 text-sm sm:max-w-[75%] md:max-w-[60%]",
-                  msg.is_mine
-                    ? "rounded-br-md bg-primary text-primary-foreground"
-                    : "rounded-bl-md bg-accent text-foreground"
-                )}
-              >
-                <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
+          {messages.map((msg) => {
+            const showGroupLayout = isGroupChat && !msg.is_mine
+            const sender = msg.user
 
-                <p
+            return (
+              <div
+                key={msg.id}
+                className={cn("flex w-full", msg.is_mine ? "justify-end" : "justify-start")}
+              >
+                {showGroupLayout && (
+                  <div className="flex shrink-0 pt-1">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={sender?.avatar_url} alt={sender?.name} />
+                      <AvatarFallback className="text-xs bg-muted">
+                        {sender?.name ? String(sender.name).slice(0, 1) : "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                )}
+                <div
                   className={cn(
-                    "mt-1 whitespace-nowrap text-right text-[10px]",
+                    "min-w-0 max-w-[85%] rounded-2xl px-4 py-2 text-sm sm:max-w-[75%] md:max-w-[60%]",
+                    showGroupLayout && "ml-2 relative before:content-[''] before:absolute before:left-[-6px] before:bottom-2 before:w-0 before:h-0 before:border-[6px] before:border-solid before:border-r-accent before:border-t-transparent before:border-b-transparent before:border-l-transparent dark:before:border-r-accent",
                     msg.is_mine
-                      ? "text-primary-foreground/70"
-                      : "text-muted-foreground"
+                      ? "rounded-br-md bg-primary text-primary-foreground"
+                      : "rounded-bl-md bg-accent text-foreground"
                   )}
                 >
-                  {msg.created_at}
-                </p>
+                  {showGroupLayout && sender?.name && (
+                    <p
+                      className={cn(
+                        "font-semibold text-sm mb-1",
+                        getParticipantNameColor(sender?.id ?? 0)
+                      )}
+                    >
+                      {sender.name}
+                    </p>
+                  )}
+                  <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
+
+                  <p
+                    className={cn(
+                      "mt-1 whitespace-nowrap text-right text-[10px]",
+                      msg.is_mine
+                        ? "text-primary-foreground/70"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {msg.created_at}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
 
           <div ref={bottomRef} />
         </div>

@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { useChat } from "@/pages/Chats/hooks/use-chats-queries"
 import { useContact } from "@/pages/Contacts/hooks/use-contacts-queries"
-import type { Message, User } from "@/types/general"
+import type { ConversationType, Message, User } from "@/types/general"
 
 export type ConversationArgs =
     | { mode: "chat"; chatId: number }
@@ -11,6 +11,7 @@ export type ResolvedConversation = {
     chatId: number | undefined
     contactId: number | undefined
     title: string
+    conversationType: ConversationType
     participants: User[]
     initialMessages: Message[]
     isLoading: boolean
@@ -30,6 +31,7 @@ export function useConversationData(args: ConversationArgs): ResolvedConversatio
                 chatId: chat?.id,
                 contactId: undefined,
                 title: chat?.label ?? "",
+                conversationType: chat?.type ?? "peer",
                 participants: chat?.participants ?? [],
                 initialMessages: chat?.messages ?? [],
                 isLoading: chatQuery.isLoading,
@@ -41,6 +43,7 @@ export function useConversationData(args: ConversationArgs): ResolvedConversatio
             chatId: data?.chat?.id,
             contactId: data?.contact?.id,
             title: data?.contact?.name ?? "",
+            conversationType: "peer",
             participants: data?.contact ? [data.contact] : [],
             initialMessages: data?.chat?.messages ?? [],
             isLoading: contactQuery.isLoading || contactQuery.isPending,

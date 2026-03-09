@@ -24,6 +24,7 @@ export function ConversationPreview({
     <ChatWindow
       participants={screen.participants}
       title={screen.title}
+      isGroupChat={screen.isGroupChat}
       messages={screen.messages}
       input={screen.input}
       isLoading={screen.isLoading}

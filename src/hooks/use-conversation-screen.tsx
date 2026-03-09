@@ -13,6 +13,7 @@ type UseConversationScreenReturn = {
   chatId: number | undefined
   title: string
   participants: User[]
+  isGroupChat: boolean
   messages: Message[]
   input: string
   isLoading: boolean
@@ -111,6 +112,7 @@ export const useConversationScreen = (
     chatId: resolved.chatId,
     title: resolved.title,
     participants: resolved.participants,
+    isGroupChat: resolved.conversationType === "group",
     messages,
     input,
     isLoading: resolved.isLoading,
