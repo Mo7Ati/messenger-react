@@ -8,6 +8,7 @@ import {
   Smile,
   Paperclip,
 } from "lucide-react"
+
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useVisualViewportHeight } from "@/hooks/use-visual-viewport-height"
 import {
@@ -35,47 +36,55 @@ type ChatWindowProps = {
   onBack?: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   onSend: () => void
+  onVoiceCall?: () => void
+  onVideoCall?: () => void
+  onMoreClick?: () => void
+  onAttachClick?: () => void
+  onEmojiClick?: () => void
 }
 
-export const ChatWindow = ({
+const ChatWindow = ({
   participants,
   title,
   messages,
   input,
-  isLoading,
-  isSending,
+  isLoading = false,
+  isSending = false,
   onBack,
   onInputChange,
   onSend,
+  onVoiceCall,
+  onVideoCall,
+  onMoreClick,
+  onAttachClick,
+  onEmojiClick,
 }: ChatWindowProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const isMobile = useIsMobile()
-  const visualRect = useVisualViewportHeight()
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages.length])
-
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
-  }, [])
-
-  // On mobile: fix chat to the visual viewport so it doesn't scroll away when keyboard opens
-  const chatContainerStyle =
-    isMobile && visualRect != null
-      ? {
-          position: "fixed" as const,
-          top: visualRect.offsetTop,
-          left: visualRect.offsetLeft,
-          width: visualRect.width,
-          height: visualRect.height,
-          zIndex: 10,
-        }
-      : undefined
+  const visualViewportHeight = useVisualViewportHeight()
 
   const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
   const extraParticipantsCount = Math.max(participants.length - 2, 0)
   const canSend = input.trim().length > 0 && !isSending
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    bottomRef.current?.scrollIntoView({
+      behavior,
+      block: "end",
+    })
+  }, [])
+
+  useEffect(() => {
+    scrollToBottom("smooth")
+  }, [messages.length, scrollToBottom])
+
+  const containerStyle = useMemo(() => {
+    if (!isMobile || !visualViewportHeight) return undefined
+
+    return {
+      height: `${visualViewportHeight}px`,
+    }
+  }, [isMobile, visualViewportHeight])
 
   if (isLoading) {
     return <ChatWindowSkeleton />
@@ -84,22 +93,22 @@ export const ChatWindow = ({
   return (
     <div
       className="flex h-full min-h-0 flex-col overflow-hidden bg-background"
-      style={chatContainerStyle}
+      style={containerStyle}
     >
-
-      {/* header */}
-      <div className="flex items-center gap-3   px-4 py-3">
+      {/* Header */}
+      <div className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
         {onBack && (
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 md:hidden"
+            className="h-8 w-8 shrink-0 md:hidden"
             onClick={onBack}
           >
             <ArrowLeft size={18} />
           </Button>
         )}
+
         <div className="shrink-0">
           <AvatarGroup>
             {visibleParticipants.map((participant) => (
@@ -120,79 +129,110 @@ export const ChatWindow = ({
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {participants.length === 1
+              ? "Online"
+              : `${participants.length} participants`}
+          </p>
         </div>
 
-        <div className="shrink-0 flex items-center gap-1">
-          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+        <div className="flex shrink-0 items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={onVoiceCall}
+          >
             <Phone size={18} />
           </Button>
-          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={onVideoCall}
+          >
             <Video size={18} />
           </Button>
-          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground"
+            onClick={onMoreClick}
+          >
             <MoreVertical size={18} />
           </Button>
         </div>
       </div>
 
-      {/* messages */}
-      <ScrollArea className="h-0 flex-1 px-4 py-4">
-        <div className="flex flex-col gap-2">
-          {messages.length === 0 && (
-            <div className="flex h-full min-h-[200px] items-center justify-center">
+      {/* Messages */}
+      <ScrollArea className="min-h-0 flex-1">
+        <div className="flex min-h-full flex-col px-4 py-4">
+          {messages.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center">
               <p className="text-sm text-muted-foreground">
                 No messages yet. Start the conversation.
               </p>
             </div>
-          )}
-
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn("flex w-full", msg.is_mine ? "justify-end" : "justify-start")}
-            >
-              <div
-                className={cn(
-                  "max-w-[85%] overflow-hidden rounded-2xl px-4 py-2 text-sm sm:max-w-[75%] md:max-w-[60%]",
-                  msg.is_mine
-                    ? "rounded-br-md bg-primary text-primary-foreground"
-                    : "rounded-bl-md bg-background text-foreground"
-                )}
-              >
-                <p className="whitespace-pre-wrap break-all">{msg.body}</p>
-
-                <p
+          ) : (
+            <div className="flex flex-col gap-2">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
                   className={cn(
-                    "mt-1 whitespace-nowrap text-right text-[10px]",
-                    msg.is_mine
-                      ? "text-primary-foreground/70"
-                      : "text-muted-foreground"
+                    "flex w-full",
+                    msg.is_mine ? "justify-end" : "justify-start"
                   )}
                 >
-                  {msg.created_at}
-                </p>
-              </div>
-            </div>
-          ))}
+                  <div
+                    className={cn(
+                      "min-w-0 max-w-[85%] overflow-hidden rounded-2xl px-4 py-2 text-sm shadow-sm sm:max-w-[75%] md:max-w-[60%]",
+                      msg.is_mine
+                        ? "rounded-br-md bg-primary text-primary-foreground"
+                        : "rounded-bl-md bg-accent text-foreground"
+                    )}
+                  >
+                    <p className="whitespace-pre-wrap break-all">{msg.body}</p>
 
-          <div ref={bottomRef} />
+                    <p
+                      className={cn(
+                        "mt-1 whitespace-nowrap text-right text-[10px]",
+                        msg.is_mine
+                          ? "text-primary-foreground/70"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {msg.created_at}
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              <div ref={bottomRef} />
+            </div>
+          )}
         </div>
       </ScrollArea>
 
-      {/* input */}
-      <div className="border-t bg-background px-4 py-3">
+      {/* Input */}
+      <div className="shrink-0 border-t bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <form
           onSubmit={(e) => {
             e.preventDefault()
             if (canSend) onSend()
           }}
-          className="mx-auto flex min-w-0 items-center gap-2"
+          className="flex min-w-0 items-center gap-2"
         >
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="h-9 w-9 shrink-0 text-muted-foreground"
+            onClick={onEmojiClick}
           >
             <Smile size={20} />
           </Button>
@@ -202,6 +242,7 @@ export const ChatWindow = ({
             variant="ghost"
             size="icon"
             className="h-9 w-9 shrink-0 text-muted-foreground"
+            onClick={onAttachClick}
           >
             <Paperclip size={20} />
           </Button>
@@ -210,21 +251,21 @@ export const ChatWindow = ({
             placeholder="Type a message..."
             value={input}
             onChange={onInputChange}
-            onFocus={scrollToBottom}
-            className="h-9 min-w-0 flex-1 border-0 bg-muted/50"
+            onFocus={() => scrollToBottom("smooth")}
+            className="h-10 min-w-0 flex-1 border-0 bg-muted/50 shadow-none focus-visible:ring-1"
           />
 
           <Button
             type="submit"
             size="icon"
-            className="h-9 w-9 shrink-0"
+            className="h-10 w-10 shrink-0"
             disabled={!canSend}
           >
             <Send size={18} />
           </Button>
         </form>
       </div>
-    </div >
+    </div>
   )
 }
 
