@@ -17,7 +17,7 @@ import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 type RegisterFormData = {
-  name: string
+  username: string
   email: string
   password: string
 }
@@ -27,7 +27,7 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [data, setData] = useState<RegisterFormData>({
-    name: "",
+    username: "",
     email: "",
     password: "",
   })
@@ -42,7 +42,7 @@ export function RegisterForm({
     setError(null)
 
     try {
-      await register(data.name, data.email, data.password)
+      await register(data.username, data.email, data.password)
       toast.success("Account created successfully")
     } catch (err: unknown) {
       const message = err && typeof err === "object" && "message" in err
@@ -54,7 +54,7 @@ export function RegisterForm({
       setLoading(false)
     }
   }
-console.log(data);
+  console.log(data);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -69,17 +69,17 @@ console.log(data);
                 </p>
               </div>
               <Field>
-                <FieldLabel htmlFor="name">name</FieldLabel>
+                <FieldLabel htmlFor="username">username</FieldLabel>
                 <Input
-                  id="name"
+                  id="username"
                   type="text"
                   placeholder="johndoe"
-                  value={data.name}
+                  value={data.username}
                   aria-invalid={!!error}
-                  aria-describedby={error ? "error-name" : undefined}
+                  aria-describedby={error ? "error-username" : undefined}
                   required
                   onChange={(e) =>
-                    setData({ ...data, name: e.target.value })
+                    setData({ ...data, username: e.target.value })
                   }
                 />
               </Field>

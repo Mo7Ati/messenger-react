@@ -15,9 +15,9 @@ export const authService = {
         const { data } = await api.post<User>("/login", { email, password })
         return data
     },
-    register: async (name: string, email: string, password: string): Promise<User> => {
+    register: async (username: string, email: string, password: string): Promise<User> => {
         await getCsrfCookie()
-        const { data } = await api.post<User>("/register", { name, email, password })
+        const { data } = await api.post<User>("/register", { username, email, password })
         return data
     },
     logout: async (): Promise<void> => {
