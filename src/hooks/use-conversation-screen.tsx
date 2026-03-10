@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Message, User } from "@/types/general"
-import { messagesService } from "@/services/messages-service"
+import { messagesService, validateAttachmentFile } from "@/services/messages-service"
 import { updateChatLastMessage } from "@/lib/chat-cache"
 import { useConversationData, type ConversationArgs } from "./use-conversation-data"
 import { useConversationMessages } from "./use-conversation-messages"
@@ -19,7 +19,7 @@ type UseConversationScreenReturn = {
   isLoading: boolean
   isSending: boolean
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onSend: () => Promise<void>
+  onSend: (files?: File[]) => Promise<void>
 }
 
 export const useConversationScreen = (
@@ -49,18 +49,32 @@ export const useConversationScreen = (
     currentUser
   } = useConversationInput(resolved.chatId)
 
-  const onSend = useCallback(async () => {
+  const onSend = useCallback(async (files?: File[]) => {
     const text = input.trim()
-    if (!text || isSending) return
+    const hasFiles = files != null && files.length > 0
+    if ((!text && !hasFiles) || isSending) return
+
+    if (hasFiles) {
+      for (const file of files) {
+        const err = validateAttachmentFile(file)
+        if (err) {
+          toast.error(err)
+          return
+        }
+      }
+    }
 
     const pendingId = "pending-" + Date.now()
+    const optimisticBody = hasFiles ? (text || "Sending attachment(s)...") : text
     const optimisticMessage: Message = {
       id: pendingId,
-      body: text,
+      body: optimisticBody,
       user_id: currentUser?.id ?? 0,
       is_read_by_all: false,
       is_mine: true,
       created_at: new Date().toISOString(),
+      type: hasFiles ? "attachment" : "text",
+      attachments: hasFiles ? [] : undefined,
       user: currentUser
         ? {
           id: currentUser.id,
@@ -84,7 +98,23 @@ export const useConversationScreen = (
 
       let newMessage: Message
 
-      if (isExistingChatSend) {
+      if (hasFiles) {
+        if (isExistingChatSend) {
+          if (!chatId) throw new Error("Missing chatId for chat send")
+          newMessage = await messagesService.sendWithAttachments({
+            message: text || undefined,
+            attachments: files,
+            conversation_id: chatId,
+          })
+        } else {
+          if (!contactId) throw new Error("Missing contactId for first contact send")
+          newMessage = await messagesService.sendWithAttachments({
+            message: text || undefined,
+            attachments: files,
+            user_id: contactId,
+          })
+        }
+      } else if (isExistingChatSend) {
         if (!chatId) throw new Error("Missing chatId for chat send")
         newMessage = await messagesService.sendToConversation({
           message: text,
@@ -100,9 +130,10 @@ export const useConversationScreen = (
 
       updateChatLastMessage(queryClient, newMessage)
       replaceOptimistic(pendingId, newMessage)
-    } catch {
+    } catch (err: unknown) {
       removeOptimistic(pendingId)
-      toast.error("Failed to send message")
+      let msg = "Failed to send message"
+      toast.error(msg)
     } finally {
       setIsSending(false)
     }

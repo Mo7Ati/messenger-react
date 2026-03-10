@@ -12,6 +12,14 @@ export type User = {
     [key: string]: unknown;
 };
 
+export type Attachment = {
+    id: number
+    original_name: string
+    mime_type: string
+    size: number
+    url: string
+}
+
 export type Message = {
     id: string
     body: string
@@ -21,6 +29,8 @@ export type Message = {
     created_at: string
     user: User
     chat_id?: number
+    type?: "text" | "attachment"
+    attachments?: Attachment[]
 }
 
 export type Chat = {

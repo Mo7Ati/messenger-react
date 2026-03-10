@@ -48,6 +48,9 @@ api.interceptors.request.use((config) => {
   } catch {
     // Echo may not be configured yet (e.g. on login page); don't block the request
   }
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
   return config
 })
 

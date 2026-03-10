@@ -7,6 +7,8 @@ import {
   Send,
   Smile,
   Paperclip,
+  X,
+  FileText,
 } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useVisualViewportHeight } from "@/hooks/use-visual-viewport-height"
@@ -20,9 +22,11 @@ import {
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { cn, formatFileSize, formatTypingHeader, getParticipantNameColor } from "@/lib/utils"
 import type { Message, User } from "@/types/general"
 import { ChatWindowSkeleton } from "./ui/chat-window-skeleton"
+import { useChatAttachments } from "@/hooks/use-chat-attachments"
+import MessageAttachment from "./attachment-message"
 
 type ChatWindowProps = {
   title: string
@@ -35,32 +39,7 @@ type ChatWindowProps = {
   typingUsers?: User[]
   onBack?: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onSend: () => void
-}
-
-const PARTICIPANT_NAME_COLORS = [
-  "text-red-700 dark:text-red-400",
-  "text-blue-700 dark:text-blue-400",
-  "text-emerald-700 dark:text-emerald-400",
-  "text-violet-700 dark:text-violet-400",
-  "text-amber-700 dark:text-amber-400",
-  "text-cyan-700 dark:text-cyan-400",
-  "text-rose-700 dark:text-rose-400",
-  "text-indigo-700 dark:text-indigo-400",
-  "text-teal-700 dark:text-teal-400",
-  "text-orange-700 dark:text-orange-400",
-] as const
-
-function getParticipantNameColor(userId: number): string {
-  const index = Math.abs(userId) % PARTICIPANT_NAME_COLORS.length
-  return PARTICIPANT_NAME_COLORS[index]
-}
-
-function formatTypingHeader(typingUsers: User[]): string {
-  if (typingUsers.length === 0) return ""
-  if (typingUsers.length === 1) return `${typingUsers[0].name} is typing...`
-  if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing...`
-  return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing...`
+  onSend: (files?: File[]) => Promise<void>
 }
 
 export const ChatWindow = ({
@@ -77,8 +56,19 @@ export const ChatWindow = ({
   onSend,
 }: ChatWindowProps) => {
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const isMobile = useIsMobile()
   const visualRect = useVisualViewportHeight()
+
+  const {
+    selectedFiles,
+    getPreviewUrl,
+    handleFileSelect,
+    removeFile,
+    handleSubmit,
+    handleDrop,
+    handleDragOver,
+  } = useChatAttachments({ input, isSending: isSending ?? false, onSend })
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -103,7 +93,7 @@ export const ChatWindow = ({
 
   const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
   const extraParticipantsCount = Math.max(participants.length - 2, 0)
-  const canSend = input.trim().length > 0 && !isSending
+  const canSend = (input.trim().length > 0 || selectedFiles.length > 0) && !isSending
 
   if (isLoading) {
     return <ChatWindowSkeleton />
@@ -219,7 +209,19 @@ export const ChatWindow = ({
                       {sender.name}
                     </p>
                   )}
-                  <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
+                  {(msg.type === "attachment" && msg.attachments && msg.attachments.length > 0) ? (
+                    <>
+                      {msg.body ? (
+                        <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
+                      ) : null}
+                      <MessageAttachment
+                        key={msg.id}
+                        attachments={msg.attachments}
+                      />
+                    </>
+                  ) : (
+                    <p className="whitespace-pre-wrap wrap-anywhere">{msg.body}</p>
+                  )}
 
                   <p
                     className={cn(
@@ -242,12 +244,53 @@ export const ChatWindow = ({
 
       {/* input */}
       <div className="border-t bg-background px-4 py-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/zip,audio/mpeg,video/mp4,audio/wav"
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        {selectedFiles.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {selectedFiles.map((file, i) => (
+              <div
+                key={`${file.name}-${i}`}
+                className="flex items-center gap-1.5 rounded-lg border bg-muted/50 px-2 py-1.5 text-xs"
+              >
+                {file.type.startsWith("image/") && getPreviewUrl(file) ? (
+                  <img
+                    src={getPreviewUrl(file)!}
+                    alt=""
+                    className="h-8 w-8 shrink-0 rounded object-cover"
+                  />
+                ) : (
+                  <FileText size={14} className="shrink-0 text-muted-foreground" />
+                )}
+                <span className="max-w-[120px] truncate">{file.name}</span>
+                <span className="text-muted-foreground">{formatFileSize(file.size)}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 shrink-0"
+                  onClick={() => removeFile(i)}
+                >
+                  <X size={12} />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault()
-            if (canSend) onSend()
+            if (canSend) void handleSubmit()
           }}
           className="mx-auto flex min-w-0 items-center gap-2"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
         >
           <Button
             type="button"
@@ -263,6 +306,7 @@ export const ChatWindow = ({
             variant="ghost"
             size="icon"
             className="h-9 w-9 shrink-0 text-muted-foreground"
+            onClick={() => fileInputRef.current?.click()}
           >
             <Paperclip size={20} />
           </Button>

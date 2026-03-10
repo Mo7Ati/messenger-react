@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Chat } from "@/types/general"
-import { Check, CheckCheck } from "lucide-react"
+import type { Chat, Message } from "@/types/general"
+import { Check, CheckCheck, FileText } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
 import { useTyping } from "@/contexts/typing-context"
 
@@ -33,6 +33,21 @@ function formatTypingLabel(typingUsers: { name: string }[]): string {
   if (typingUsers.length === 1) return `${typingUsers[0].name} is typing`
   if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing`
   return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing`
+}
+
+const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
+  if (lastMessage.type == "text") {
+    return lastMessage.body.length > 20
+      ? lastMessage.body.slice(0, 30) + "..."
+      : lastMessage.body
+  }
+  return (
+    <div className="flex items-center gap-1"><FileText size={14} className="shrink-0" />
+      <span className="truncate max-w-[180px]">
+        Attachment
+      </span>
+    </div>
+  )
 }
 
 export function ConversationListItem({ chat, variant }: ConversationListItemProps) {
@@ -101,9 +116,9 @@ export function ConversationListItem({ chat, variant }: ConversationListItemProp
                       <Check className="h-4 w-4 shrink-0" />
                     )}
                     <span className="truncate">
-                      {chat.last_message.body.length > 20
-                        ? chat.last_message.body.slice(0, 30) + "..."
-                        : chat.last_message.body}
+                      {
+                        formatLastMessageLabel(chat.last_message)
+                      }
                     </span>
                   </>
                 ) : (
