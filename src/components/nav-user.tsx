@@ -8,7 +8,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/features/auth/auth-context";
 import {
     BadgeCheckIcon,
     LogOutIcon,
@@ -25,7 +25,7 @@ export function NavUser() {
                 <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar>
                         <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
-                        <AvatarFallback>{user.name.slice(0, 2)}</AvatarFallback>
+                        <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>

@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Chat, Message } from "@/types/general"
+import type { Chat, Message, User } from "@/types/general"
 import { Check, CheckCheck, FileText } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
-import { useTyping } from "@/contexts/typing-context"
+import { useTyping } from "@/features/messaging/typing-context"
 
 export type ConversationListVariant = "chats" | "groups"
 
@@ -28,11 +28,11 @@ type ConversationListItemProps = {
   variant: ConversationListVariant
 }
 
-function formatTypingLabel(typingUsers: { name: string }[]): string {
+function formatTypingLabel(typingUsers: User[]): string {
   if (typingUsers.length === 0) return ""
-  if (typingUsers.length === 1) return `${typingUsers[0].name} is typing`
-  if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing`
-  return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing`
+  if (typingUsers.length === 1) return `${typingUsers[0].username} is typing`
+  if (typingUsers.length === 2) return `${typingUsers[0].username} and ${typingUsers[1].username} are typing`
+  return `${typingUsers[0].username} and ${typingUsers.length - 1} others are typing`
 }
 
 const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
@@ -80,9 +80,9 @@ export function ConversationListItem({ chat, variant }: ConversationListItemProp
             <AvatarGroup>
               {chat.participants.slice(0, 2).map((participant) => (
                 <Avatar key={participant.id}>
-                  <AvatarImage src={participant.avatar_url} alt={participant.name} />
+                  <AvatarImage src={participant.avatar_url} alt={participant.username} />
                   <AvatarFallback>
-                    {participant.name.slice(0, 2).toUpperCase()}
+                    {participant.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                   <AvatarBadge className="bg-green-600 dark:bg-green-800" />
                 </Avatar>

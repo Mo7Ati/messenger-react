@@ -8,7 +8,7 @@ export type ApiSuccessResponse<T> = {
   data: T;
   status: number;
   success: true;
-  extra: Record<string, any>;
+  extra: Record<string, unknown>;
 }
 
 export type ApiErrorResponse = {

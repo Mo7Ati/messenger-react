@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input"
 import { cn, formatFileSize, formatTypingHeader, getParticipantNameColor } from "@/lib/utils"
 import type { Message, User } from "@/types/general"
 import { ChatWindowSkeleton } from "./ui/chat-window-skeleton"
-import { useChatAttachments } from "@/hooks/use-chat-attachments"
+import { useChatAttachments } from "@/features/messaging/hooks/use-chat-attachments"
 import MessageAttachment from "./attachment-message"
 
 type ChatWindowProps = {
@@ -122,9 +122,9 @@ export const ChatWindow = ({
           <AvatarGroup>
             {visibleParticipants.map((participant) => (
               <Avatar key={participant.id}>
-                <AvatarImage src={participant.avatar_url} alt={participant.name} />
+                <AvatarImage src={participant.avatar_url} alt={participant.username} />
                 <AvatarFallback>
-                  {participant.name.slice(0, 2).toUpperCase()}
+                  {participant.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
                 <AvatarBadge className="bg-green-600 dark:bg-green-800" />
               </Avatar>
@@ -183,9 +183,9 @@ export const ChatWindow = ({
                 {showGroupLayout && (
                   <div className="flex shrink-0 pt-1">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={sender?.avatar_url} alt={sender?.name} />
+                      <AvatarImage src={sender?.avatar_url} alt={sender?.username} />
                       <AvatarFallback className="text-xs bg-muted">
-                        {sender?.name ? String(sender.name).slice(0, 1) : "?"}
+                        {sender?.username ? String(sender.username).slice(0, 1) : "?"}
                       </AvatarFallback>
                     </Avatar>
                   </div>
@@ -199,14 +199,14 @@ export const ChatWindow = ({
                       : "rounded-bl-md bg-accent text-foreground"
                   )}
                 >
-                  {showGroupLayout && sender?.name && (
+                  {showGroupLayout && sender?.username && (
                     <p
                       className={cn(
                         "font-semibold text-sm mb-1",
                         getParticipantNameColor(sender?.id ?? 0)
                       )}
                     >
-                      {sender.name}
+                      {sender.username}
                     </p>
                   )}
                   {(msg.type === "attachment" && msg.attachments && msg.attachments.length > 0) ? (

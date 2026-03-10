@@ -1,19 +1,19 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
-import Chats from "./pages/Chats/chats";
-import Login from "./pages/Login/login";
-import Register from "./pages/Register/register";
-import ForgotPassword from "./pages/ForgotPassword/forgot-password";
-import ResetPassword from "./pages/ResetPassword/reset-password";
-import ProtectedRoute from "./components/protected-routes";
-import GuestRoutes from "./components/guest-routes";
-import MessengerLayout from "./layouts/messenger-layout";
-import ContactPreview from "./pages/Contacts/components/contact-preview";
-import Contacts from "./pages/Contacts/contacts";
-import { ContactRequests } from "./pages/Contacts/ContactRequests";
+import Chats from "./features/chats/pages/chats";
+import Login from "./features/auth/pages/login";
+import Register from "./features/auth/pages/register";
+import ForgotPassword from "./features/auth/pages/forgot-password";
+import ResetPassword from "./features/auth/pages/reset-password";
+import ProtectedRoute from "./components/guards/protected-routes";
+import GuestRoutes from "./components/guards/guest-routes";
+import AppLayout from "./components/layout/app-layout";
+import ContactPreview from "./features/contacts/components/contact-preview";
+import Contacts from "./features/contacts/pages/contacts";
+import { ContactRequests } from "./features/contacts/pages/contact-requests";
 import { EmptyState } from "./components/empty-state";
-import ChatPreview from "./pages/Chats/components/chat-preview";
-import Groups from "./pages/Groups/groups";
-import GroupPreview from "./pages/Groups/components/group-preview";
+import ChatPreview from "./features/chats/components/chat-preview";
+import Groups from "./features/chats/pages/groups";
+import GroupPreview from "./features/chats/components/group-preview";
 
 export function App() {
   return (
@@ -32,7 +32,7 @@ export function App() {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<MessengerLayout />}>
+          <Route element={<AppLayout />}>
             {/* Chats */}
             <Route path="/chats" element={<Chats />}>
               <Route index element={<EmptyState variant="no-chat" />} />
