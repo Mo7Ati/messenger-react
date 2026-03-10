@@ -10,6 +10,9 @@ import { toast } from "sonner"
 import type { Message } from "@/types/general"
 import type { MessageCreatedPayload } from "@/hooks/use-user-inbox-channel"
 import { syncIncomingMessage } from "@/lib/chat-cache"
+import { playNotificationSound } from "@/lib/utils"
+
+
 
 type AppendMessageFn = (message: Message) => void
 
@@ -48,7 +51,9 @@ export function MessengerInboxProvider({ children }: { children: ReactNode }) {
         appendMessageRef.current(incomingMessage)
       } else {
         const fromName = incomingMessage.user?.name ?? "Someone"
-        toast.info(`New message from ${fromName}`, { position: "top-right" })
+
+        playNotificationSound()
+        toast.info(`${fromName} : ${incomingMessage.type === "text" ? incomingMessage.body : "Attachment"}`, { position: "top-right" })
       }
     },
     [queryClient]
