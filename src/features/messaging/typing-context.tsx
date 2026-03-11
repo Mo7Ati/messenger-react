@@ -11,7 +11,7 @@ import type { ConversationType, User } from "@/types/general"
 import { useAuth } from "@/features/auth/auth-context"
 import { usePublicChannel } from "@/features/messaging/hooks/use-public-channel"
 
-const TYPING_EXPIRY_MS = 4000
+const TYPING_EXPIRY_MS = 2000
 
 type TypingEntry = { user: User; expiresAt: number }
 

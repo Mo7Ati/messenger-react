@@ -104,7 +104,7 @@ export const useConversationScreen = (
           newMessage = await messagesService.sendWithAttachments({
             message: text || undefined,
             attachments: files,
-            conversation_id: chatId,
+            chat_id: chatId,
           })
         } else {
           if (!contactId) throw new Error("Missing contactId for first contact send")
@@ -118,7 +118,7 @@ export const useConversationScreen = (
         if (!chatId) throw new Error("Missing chatId for chat send")
         newMessage = await messagesService.sendToConversation({
           message: text,
-          conversation_id: chatId,
+          chat_id: chatId,
         })
       } else {
         if (!contactId) throw new Error("Missing contactId for first contact send")

@@ -11,7 +11,7 @@ export default function ContactPreview() {
     mode: "contact",
     contactId: Number(contactId),
   })
-  const typingLabel = screen.chatId ? getTypingLabel(screen.chatId, "peer") : ""
+  const typingLabel = screen.chatId ? getTypingLabel(screen.chatId, screen.isGroupChat ? "group" : "peer") : ""
 
   return (
     <ChatWindow

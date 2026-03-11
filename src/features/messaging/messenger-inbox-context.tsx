@@ -51,8 +51,7 @@ export function MessengerInboxProvider({ children }: { children: ReactNode }) {
       if (isForActiveChat && appendMessageRef.current) {
         appendMessageRef.current(incomingMessage)
       } else {
-        const fromName = incomingMessage.user?.name ?? "Someone"
-
+        const fromName = incomingMessage.user?.username ?? "Someone"
         playNotificationSound()
         toast.info(`${fromName} : ${incomingMessage.type === "text" ? incomingMessage.body : "Attachment"}`, { position: "top-right" })
       }

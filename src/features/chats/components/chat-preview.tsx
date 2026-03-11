@@ -9,4 +9,5 @@ export default function ChatPreview() {
       backPath="/chats"
     />
   )
+  
 }

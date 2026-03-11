@@ -20,7 +20,7 @@ export function ConversationPreview({
     chatId: conversationId,
   })
 
-  const typingLabel = getTypingLabel(conversationId, "group")
+  const typingLabel = screen.chatId ? getTypingLabel(screen.chatId, screen.isGroupChat ? "group" : "peer") : ""
 
   return (
     <ChatWindow

@@ -15,9 +15,6 @@ import { useTyping } from "@/features/messaging/typing-context"
 
 export type ConversationListVariant = "chats" | "groups"
 
-
-
-
 const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
   if (lastMessage.type == "text") {
     return lastMessage.body.length > 20

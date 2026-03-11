@@ -12,7 +12,7 @@ export function validateAttachmentFile(file: File): string | null {
 
 export type SendToConversationParams = {
     message: string
-    conversation_id: number
+    chat_id: number
 }
 
 export type SendToUserParams = {
@@ -23,7 +23,7 @@ export type SendToUserParams = {
 export type SendWithAttachmentsParams = {
     message?: string
     attachments: File[]
-    conversation_id?: number
+    chat_id?: number
     user_id?: number
 }
 
@@ -32,7 +32,7 @@ function buildMessageFormData(params: SendWithAttachmentsParams): FormData {
     const caption = params.message?.trim() ?? ""
     form.append("message", caption)
     params.attachments.forEach((file) => form.append("attachments[]", file))
-    if (params.conversation_id != null) form.append("conversation_id", String(params.conversation_id))
+    if (params.chat_id != null) form.append("chat_id", String(params.chat_id))
     if (params.user_id != null) form.append("user_id", String(params.user_id))
     return form
 }

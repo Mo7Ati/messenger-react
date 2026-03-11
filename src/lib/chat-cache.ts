@@ -29,7 +29,7 @@ export function syncIncomingMessage(queryClient: QueryClient, message: Message) 
         if (chats.length === 0) {
             const chat: Chat = {
                 id: message.chat_id ?? 0,
-                label: message.user.name ?? "unknown",
+                label: message.user.username ?? "unknown",
                 type: "peer",
                 last_message: message,
                 messages: [message],
