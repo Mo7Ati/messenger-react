@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils"
 import type { Chat, Message } from "@/types/general"
 import { Check, CheckCheck, FileText } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
-import { useTyping } from "@/features/messaging/typing-context"
 
 export type ConversationListVariant = "chats" | "groups"
 
@@ -51,7 +50,6 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
   const params = useParams<{ chatId?: string; groupId?: string }>()
   const { path, paramKey } = variantConfig[variant]
   const activeId = params[paramKey]
-  const { getTypingLabel } = useTyping()
 
   return (
     <li key={chat.id}>
@@ -95,9 +93,7 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
 
             <div className="mt-1 flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
               <div className="flex items-center gap-1 min-w-0">
-                {getTypingLabel(chat.id, chat.type) ? (
-                  <span className="truncate italic text-primary/80">{getTypingLabel(chat.id, chat.type)}</span>
-                ) : chat.last_message ? (
+                {chat.last_message ? (
                   <>
                     {chat.last_message.is_read_by_all ? (
                       <CheckCheck className="h-4 w-4 shrink-0 text-emerald-500" />

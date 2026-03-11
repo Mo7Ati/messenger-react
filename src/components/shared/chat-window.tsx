@@ -25,7 +25,6 @@ import { Input } from "@/components/ui/input"
 import { cn, formatFileSize, getParticipantNameColor } from "@/lib/utils"
 import type { Message, User } from "@/types/general"
 import { ChatWindowSkeleton } from "@/components/ui/chat-window-skeleton"
-import { useChatAttachments } from "@/features/messaging/hooks/use-chat-attachments"
 import MessageAttachment from "./attachment-message"
 
 type ChatWindowProps = {
@@ -60,16 +59,6 @@ export const ChatWindow = ({
   const isMobile = useIsMobile()
   const visualRect = useVisualViewportHeight()
 
-  const {
-    selectedFiles,
-    getPreviewUrl,
-    handleFileSelect,
-    removeFile,
-    handleSubmit,
-    handleDrop,
-    handleDragOver,
-  } = useChatAttachments({ input, isSending: isSending ?? false, onSend })
-
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
@@ -93,7 +82,6 @@ export const ChatWindow = ({
 
   const visibleParticipants = useMemo(() => participants.slice(0, 2), [participants])
   const extraParticipantsCount = Math.max(participants.length - 2, 0)
-  const canSend = (input.trim().length > 0 || selectedFiles.length > 0) && !isSending
 
   if (isLoading) {
     return <ChatWindowSkeleton />
@@ -248,47 +236,11 @@ export const ChatWindow = ({
           multiple
           accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/zip,audio/mpeg,video/mp4,audio/wav"
           className="hidden"
-          onChange={handleFileSelect}
         />
-        {selectedFiles.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {selectedFiles.map((file, i) => (
-              <div
-                key={`${file.name}-${i}`}
-                className="flex items-center gap-1.5 rounded-lg border bg-muted/50 px-2 py-1.5 text-xs"
-              >
-                {file.type.startsWith("image/") && getPreviewUrl(file) ? (
-                  <img
-                    src={getPreviewUrl(file)!}
-                    alt=""
-                    className="h-8 w-8 shrink-0 rounded object-cover"
-                  />
-                ) : (
-                  <FileText size={14} className="shrink-0 text-muted-foreground" />
-                )}
-                <span className="max-w-[120px] truncate">{file.name}</span>
-                <span className="text-muted-foreground">{formatFileSize(file.size)}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5 shrink-0"
-                  onClick={() => removeFile(i)}
-                >
-                  <X size={12} />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
         <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (canSend) void handleSubmit()
-          }}
           className="mx-auto flex min-w-0 items-center gap-2"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
+          // onDrop={handleDrop}
+          // onDragOver={handleDragOver}
         >
           <Button
             type="button"
@@ -321,7 +273,7 @@ export const ChatWindow = ({
             type="submit"
             size="icon"
             className="h-9 w-9 shrink-0"
-            disabled={!canSend}
+            disabled={!input.trim().length}
           >
             <Send size={18} />
           </Button>
