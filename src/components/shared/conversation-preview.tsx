@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router"
-import ChatWindow from "@/components/chat-window"
 import { useTyping } from "@/features/messaging/typing-context"
 import { useConversationScreen } from "@/features/messaging/hooks/use-conversation-screen"
+import ChatWindow from "./chat-window"
 
 type ConversationPreviewProps = {
   conversationId: number
@@ -13,12 +13,14 @@ export function ConversationPreview({
   backPath,
 }: ConversationPreviewProps) {
   const navigate = useNavigate()
-  const { getTypingUsers } = useTyping()
+  const { getTypingLabel } = useTyping()
+
   const screen = useConversationScreen({
     mode: "chat",
     chatId: conversationId,
   })
-  const typingUsers = getTypingUsers(conversationId)
+
+  const typingLabel = getTypingLabel(conversationId, "group")
 
   return (
     <ChatWindow
@@ -29,7 +31,7 @@ export function ConversationPreview({
       input={screen.input}
       isLoading={screen.isLoading}
       isSending={screen.isSending}
-      typingUsers={typingUsers}
+      typingLabel={typingLabel}
       onBack={() => navigate(backPath)}
       onInputChange={screen.onInputChange}
       onSend={screen.onSend}

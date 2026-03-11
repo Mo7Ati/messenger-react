@@ -1,5 +1,5 @@
 import { useParams } from "react-router"
-import { ConversationPreview } from "@/components/conversation-preview"
+import { ConversationPreview } from "@/components/shared/conversation-preview"
 
 export default function ChatPreview() {
   const { chatId } = useParams<{ chatId: string }>()

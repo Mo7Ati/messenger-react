@@ -1,16 +1,13 @@
-"use client"
-
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function ChatsSkeleton() {
     return (
-        <Card className="h-full flex flex-col w-100 overflow-hidden">
+        <Card className="flex h-full w-full flex-col overflow-hidden rounded-none md:w-96">
             {/* Header */}
-            <CardHeader className="space-y-4 pb-3">
+            <CardHeader className="shrink-0 space-y-4 pb-3">
                 <div className="flex items-center justify-between">
-                    <Skeleton className="h-7 w-24" />
-                    <Skeleton className="h-9 w-20 rounded-xl" />
+                    <Skeleton className="h-8 w-28" />
                 </div>
 
                 {/* Search */}
@@ -18,10 +15,10 @@ export function ChatsSkeleton() {
             </CardHeader>
 
             {/* List */}
-            <CardContent className="flex-1 min-h-0 p-0">
+            <CardContent className="min-h-0 flex-1 p-0">
                 <div className="divide-y">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="flex items-center gap-3 px-4 py-4">
+                        <div key={i} className="flex items-center gap-3 px-4 py-3">
                             {/* Avatar */}
                             <Skeleton className="h-11 w-11 rounded-full shrink-0" />
 

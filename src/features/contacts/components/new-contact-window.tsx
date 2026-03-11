@@ -3,7 +3,7 @@ import { X, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { UserSearchItem } from "@/components/user/user-search-item"
+import { UserSearchItem } from "@/features/contacts/components/user-search-item"
 import { cn } from "@/lib/utils"
 import { useNewContactSearch } from "../hooks/use-new-contact-search"
 

@@ -1,11 +1,9 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "@/features/auth/auth-context";
-import { usePublicChannel } from "@/features/messaging/hooks/use-public-channel";
 
-export default function ProtectedRoute() {
+export default function GuestRoutesWrapper() {
   const { user, authLoading } = useAuth();
   const location = useLocation();
-  
 
   if (authLoading) {
     return (
@@ -15,10 +13,9 @@ export default function ProtectedRoute() {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (user) {
+    return <Navigate to="/chats" state={{ from: location }} replace />;
   }
 
-  usePublicChannel()
   return <Outlet />;
 }

@@ -1,7 +1,7 @@
 import type { Attachment } from '@/types/general'
 import { File } from 'lucide-react'
 import { PhotoProvider, PhotoView } from 'react-image-previewer';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatFileSize } from '@/lib/utils';
 
 

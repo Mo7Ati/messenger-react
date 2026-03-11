@@ -4,8 +4,8 @@ import Login from "./features/auth/pages/login";
 import Register from "./features/auth/pages/register";
 import ForgotPassword from "./features/auth/pages/forgot-password";
 import ResetPassword from "./features/auth/pages/reset-password";
-import ProtectedRoute from "./components/guards/protected-routes";
-import GuestRoutes from "./components/guards/guest-routes";
+import ProtectedRouteWrapper from "./components/guards/protected-routes-wrapper";
+import GuestRoutesWrapper from "./components/guards/guest-routes-wrapper";
 import AppLayout from "./components/layout/app-layout";
 import ContactPreview from "./features/contacts/components/contact-preview";
 import Contacts from "./features/contacts/pages/contacts";
@@ -23,7 +23,7 @@ export function App() {
         <Route path="/" element={<Navigate to="/chats" replace />} />
 
         {/* Guest Routes */}
-        <Route element={<GuestRoutes />}>
+        <Route element={<GuestRoutesWrapper />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -31,7 +31,7 @@ export function App() {
         </Route>
 
         {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedRouteWrapper />}>
           <Route element={<AppLayout />}>
             {/* Chats */}
             <Route path="/chats" element={<Chats />}>

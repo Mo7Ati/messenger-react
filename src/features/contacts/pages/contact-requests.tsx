@@ -28,13 +28,13 @@ function RequestRow({
       )}
     >
       <Avatar className="h-12 w-12 shrink-0 rounded-full">
-        <AvatarImage src={request.avatar_url} alt={request.name} />
+        <AvatarImage src={request.avatar_url} alt={request.username} />
         <AvatarFallback className="rounded-full text-sm">
-          {request.name.slice(0, 2).toUpperCase()}
+          {request.username.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold truncate">{request.name}</p>
+        <p className="text-sm font-semibold truncate">{request.username}</p>
         {request.username && (
           <p className="text-xs text-muted-foreground truncate">@{request.username}</p>
         )}

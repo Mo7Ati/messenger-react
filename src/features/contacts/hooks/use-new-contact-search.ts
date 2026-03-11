@@ -3,12 +3,12 @@ import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import { useDebounce } from "@/hooks/use-debounce"
 import { contactService } from "@/features/contacts/contacts-service"
-import type { SearchUser } from "@/types/contacts"
+import type { User } from "@/types/general"
 
 export function useNewContactSearch(isOpen: boolean, onClose: () => void) {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState("")
-    const [searchResults, setSearchResults] = useState<SearchUser[]>([])
+    const [searchResults, setSearchResults] = useState<User[]>([])
     const [loading, setLoading] = useState(false)
     const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -54,7 +54,7 @@ export function useNewContactSearch(isOpen: boolean, onClose: () => void) {
         }
     }, [isOpen])
 
-    const handleSendRequest = async (user: SearchUser) => {
+    const handleSendRequest = async (user: User) => {
         setActionLoadingId(user.id)
         try {
             await contactService.sendContactRequest(user.id)
@@ -74,7 +74,7 @@ export function useNewContactSearch(isOpen: boolean, onClose: () => void) {
         }
     }
 
-    const handleAcceptRequest = async (user: SearchUser) => {
+    const handleAcceptRequest = async (user: User) => {
         setActionLoadingId(user.id)
         try {
             await contactService.acceptContactRequest(user.id)
@@ -94,7 +94,7 @@ export function useNewContactSearch(isOpen: boolean, onClose: () => void) {
         }
     }
 
-    const handleStartChat = (user: SearchUser) => {
+    const handleStartChat = (user: User) => {
         onClose()
         navigate(`/contacts/${user.id}`, { state: { contact: user } })
     }

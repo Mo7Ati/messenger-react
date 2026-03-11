@@ -4,17 +4,16 @@ import type { CreateGroupParams } from "@/types/groups"
 
 export const groupsService = {
   getGroups: async (): Promise<Chat[]> => {
-    const { data } = await api.get<Chat[]>("/groups")
+    const { data } = await api.get<Chat[]>("/chats", { params: { type: "group" } })
     return data
   },
   getGroup: async (id: number): Promise<Chat> => {
-    const { data } = await api.get<Chat>(`/groups/${id}`)
+    const { data } = await api.get<Chat>(`/chats/${id}`, { params: { type: "group" } })
     return data
   },
   createGroup: async (params: CreateGroupParams): Promise<Chat> => {
-    const { data } = await api.post<Chat>("/groups", {
+    const { data } = await api.post<Chat>("/chats", {
       label: params.label,
-      // avatar_url: params.avatar_url ?? undefined,
       participants_ids: params.participants_ids,
     })
     return data

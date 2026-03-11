@@ -11,7 +11,7 @@ import {
 
 import { MessageSquare, Users, User, Sparkles, MessageCircleCode } from "lucide-react"
 import { NavLink, useLocation, useNavigate, useParams } from "react-router"
-import { NavUser } from "@/components/nav-user"
+import { NavUser } from "@/components/navbar/nav-user"
 
 type NavItem = {
   label: string

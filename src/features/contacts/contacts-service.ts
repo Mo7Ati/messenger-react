@@ -1,6 +1,6 @@
 import api, { type ApiSuccessResponse } from "@/lib/api";
 import type { User } from "@/types/general";
-import type { GetContactResponse, SearchUser } from "@/types/contacts";
+import type { GetContactResponse } from "@/types/contacts";
 
 export const contactService = {
     getContacts: async (): Promise<ApiSuccessResponse<User[]>> => {
@@ -11,8 +11,8 @@ export const contactService = {
         const { data } = await api.get<GetContactResponse>(`/contacts/${id}`);
         return data;
     },
-    searchUsers: async (query: string): Promise<SearchUser[]> => {
-        const { data } = await api.get<SearchUser[]>(`/contacts/search`, { params: { query } });
+    searchUsers: async (query: string): Promise<User[]> => {
+        const { data } = await api.get<User[]>(`/contacts/search`, { params: { query } });
         return data;
     },
     getPendingRequests: async (): Promise<User[]> => {

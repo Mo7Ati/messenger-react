@@ -15,14 +15,13 @@ export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
 
     useEffect(() => {
         if (!isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLabel("")
             setSelectedIds([])
         }
     }, [isOpen])
 
     const participantOptions = useMemo(
-        () => contacts.map((c) => ({ label: c.name, value: String(c.id) })),
+        () => contacts.map((c) => ({ label: c.username, value: String(c.id) })),
         [contacts]
     )
 

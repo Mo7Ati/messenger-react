@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function ContactsSkeleton() {
   return (
-    <Card className="h-full flex flex-col w-100 overflow-hidden">
+    <Card className="h-full w-full flex flex-col overflow-hidden">
       {/* Header */}
       <CardHeader className="space-y-4 pb-3">
         <div className="flex items-center justify-between">

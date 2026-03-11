@@ -17,7 +17,7 @@ export function useFilteredContacts(contacts: User[] = []) {
     if (!q) return contacts
     return contacts.filter(
       (contact) =>
-        contact.name.toLowerCase().includes(q) ||
+        contact.username.toLowerCase().includes(q) ||
         contact.email?.toLowerCase().includes(q)
     )
   }, [contacts, deferredSearchQuery])
@@ -25,11 +25,11 @@ export function useFilteredContacts(contacts: User[] = []) {
   const groupedContacts = useMemo(() => {
     const groups: Record<string, User[]> = {}
     const sorted = [...filteredContacts].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+      a.username.localeCompare(b.username, undefined, { sensitivity: "base" })
     )
 
     for (const contact of sorted) {
-      const letter = getGroupLetter(contact.name)
+      const letter = getGroupLetter(contact.username)
       if (!groups[letter]) groups[letter] = []
       groups[letter].push(contact)
     }

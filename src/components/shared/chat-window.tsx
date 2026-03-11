@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn, formatFileSize, formatTypingHeader, getParticipantNameColor } from "@/lib/utils"
+import { cn, formatFileSize, getParticipantNameColor } from "@/lib/utils"
 import type { Message, User } from "@/types/general"
-import { ChatWindowSkeleton } from "./ui/chat-window-skeleton"
+import { ChatWindowSkeleton } from "@/components/ui/chat-window-skeleton"
 import { useChatAttachments } from "@/features/messaging/hooks/use-chat-attachments"
 import MessageAttachment from "./attachment-message"
 
@@ -36,7 +36,7 @@ type ChatWindowProps = {
   input: string
   isLoading?: boolean
   isSending?: boolean
-  typingUsers?: User[]
+  typingLabel?: string
   onBack?: () => void
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   onSend: (files?: File[]) => Promise<void>
@@ -50,7 +50,7 @@ export const ChatWindow = ({
   input,
   isLoading,
   isSending,
-  typingUsers = [],
+  typingLabel = "",
   onBack,
   onInputChange,
   onSend,
@@ -138,11 +138,9 @@ export const ChatWindow = ({
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{title}</p>
-          {typingUsers.length > 0 && (
+          {typingLabel && (
             <p className="truncate text-xs text-muted-foreground italic">
-              {participants.length > 1
-                ? formatTypingHeader(typingUsers)
-                : "typing..."}
+              {typingLabel}
             </p>
           )}
         </div>
@@ -185,7 +183,7 @@ export const ChatWindow = ({
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={sender?.avatar_url} alt={sender?.username} />
                       <AvatarFallback className="text-xs bg-muted">
-                        {sender?.username ? String(sender.username).slice(0, 1) : "?"}
+                        {sender.username.slice(0, 1)}
                       </AvatarFallback>
                     </Avatar>
                   </div>
@@ -199,11 +197,11 @@ export const ChatWindow = ({
                       : "rounded-bl-md bg-accent text-foreground"
                   )}
                 >
-                  {showGroupLayout && sender?.username && (
+                  {showGroupLayout && sender.username && (
                     <p
                       className={cn(
                         "font-semibold text-sm mb-1",
-                        getParticipantNameColor(sender?.id ?? 0)
+                        getParticipantNameColor(sender.id)
                       )}
                     >
                       {sender.username}

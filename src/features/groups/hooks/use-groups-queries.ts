@@ -3,11 +3,10 @@ import { groupsService } from "@/features/groups/groups-service"
 import type { Chat } from "@/types/general"
 import type { CreateGroupParams } from "@/types/groups"
 
-const groupsQueryKey = ["groups"] as const
 
 export function useGroups() {
     return useQuery<Chat[], Error>({
-        queryKey: groupsQueryKey,
+        queryKey: ["groups"],
         queryFn: groupsService.getGroups,
     })
 }
@@ -24,7 +23,7 @@ export function useCreateGroup() {
     return useMutation({
         mutationFn: (params: CreateGroupParams) => groupsService.createGroup(params),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: groupsQueryKey })
+            queryClient.invalidateQueries({ queryKey: ["groups"] })
         },
     })
 }

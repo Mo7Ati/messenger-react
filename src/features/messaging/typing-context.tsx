@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import type { User } from "@/types/general"
+import type { ConversationType, User } from "@/types/general"
 import { useAuth } from "@/features/auth/auth-context"
 import { usePublicChannel } from "@/features/messaging/hooks/use-public-channel"
 
@@ -18,7 +18,7 @@ type TypingEntry = { user: User; expiresAt: number }
 type TypingState = Record<number, TypingEntry[]>
 
 type TypingContextValue = {
-  getTypingUsers: (chatId: number) => User[]
+  getTypingLabel: (chatId: number, chatType: ConversationType) => string
 }
 
 const TypingContext = createContext<TypingContextValue | null>(null)
@@ -80,7 +80,16 @@ export function TypingProvider({ children }: { children: ReactNode }) {
     return users.filter((u) => u.id !== currentUser.id)
   }
 
-  const value: TypingContextValue = { getTypingUsers }
+  const getTypingLabel = (chatId: number, chatType: ConversationType): string => {
+    const typingUsers = getTypingUsers(chatId)
+    if (typingUsers.length === 0) return ""
+    if (chatType === "peer") return "typing..."
+    return typingUsers.length === 1
+      ? `${typingUsers[0].username} is typing`
+      : `${typingUsers[0].username} and ${typingUsers.length - 1} others are typing`
+  }
+
+  const value: TypingContextValue = { getTypingLabel }
 
   return (
     <TypingContext.Provider value={value}>

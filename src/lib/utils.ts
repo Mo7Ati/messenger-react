@@ -30,19 +30,13 @@ export function getParticipantNameColor(userId: number): string {
   return PARTICIPANT_NAME_COLORS[index]
 }
 
-export function formatTypingHeader(typingUsers: User[]): string {
-  if (typingUsers.length === 0) return ""
-  if (typingUsers.length === 1) return `${typingUsers[0].name} is typing...`
-  if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing...`
-  return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing...`
-}
 
 export function playNotificationSound() {
   try {
     const audio = new Audio("/notification.mp3")
-    // audio.volume = 0.5
     audio.play()
   } catch {
     // Silently ignore if audio fails
   }
 }
+

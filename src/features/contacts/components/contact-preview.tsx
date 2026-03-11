@@ -1,17 +1,17 @@
 import { useNavigate, useParams } from "react-router"
-import ChatWindow from "@/components/chat-window"
+import ChatWindow from "@/components/shared/chat-window"
 import { useTyping } from "@/features/messaging/typing-context"
 import { useConversationScreen } from "@/features/messaging/hooks/use-conversation-screen"
 
 export default function ContactPreview() {
   const { contactId } = useParams<{ contactId: string }>()
   const navigate = useNavigate()
-  const { getTypingUsers } = useTyping()
+  const { getTypingLabel } = useTyping()
   const screen = useConversationScreen({
     mode: "contact",
     contactId: Number(contactId),
   })
-  const typingUsers = screen.chatId ? getTypingUsers(screen.chatId) : []
+  const typingLabel = screen.chatId ? getTypingLabel(screen.chatId, "peer") : ""
 
   return (
     <ChatWindow
@@ -22,7 +22,7 @@ export default function ContactPreview() {
       input={screen.input}
       isLoading={screen.isLoading}
       isSending={screen.isSending}
-      typingUsers={typingUsers}
+      typingLabel={typingLabel}
       onBack={() => navigate("/contacts")}
       onInputChange={screen.onInputChange}
       onSend={screen.onSend}

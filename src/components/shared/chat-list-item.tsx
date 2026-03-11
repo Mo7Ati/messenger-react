@@ -8,12 +8,32 @@ import {
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Chat, Message, User } from "@/types/general"
+import type { Chat, Message } from "@/types/general"
 import { Check, CheckCheck, FileText } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
 import { useTyping } from "@/features/messaging/typing-context"
 
 export type ConversationListVariant = "chats" | "groups"
+
+
+
+
+const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
+  if (lastMessage.type == "text") {
+    return lastMessage.body.length > 20
+      ? lastMessage.body.slice(0, 30) + "..."
+      : lastMessage.body
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <FileText size={14} className="shrink-0" />
+      <span className="truncate max-w-[180px]">
+        Attachment
+      </span>
+    </div>
+  )
+}
+
 
 const variantConfig: Record<
   ConversationListVariant,
@@ -28,41 +48,13 @@ type ConversationListItemProps = {
   variant: ConversationListVariant
 }
 
-function formatTypingLabel(typingUsers: User[]): string {
-  if (typingUsers.length === 0) return ""
-  if (typingUsers.length === 1) return `${typingUsers[0].username} is typing`
-  if (typingUsers.length === 2) return `${typingUsers[0].username} and ${typingUsers[1].username} are typing`
-  return `${typingUsers[0].username} and ${typingUsers.length - 1} others are typing`
-}
 
-const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
-  if (lastMessage.type == "text") {
-    return lastMessage.body.length > 20
-      ? lastMessage.body.slice(0, 30) + "..."
-      : lastMessage.body
-  }
-  return (
-    <div className="flex items-center gap-1"><FileText size={14} className="shrink-0" />
-      <span className="truncate max-w-[180px]">
-        Attachment
-      </span>
-    </div>
-  )
-}
-
-export function ConversationListItem({ chat, variant }: ConversationListItemProps) {
+export function ChatListItem({ chat, variant }: ConversationListItemProps) {
   const navigate = useNavigate()
   const params = useParams<{ chatId?: string; groupId?: string }>()
   const { path, paramKey } = variantConfig[variant]
   const activeId = params[paramKey]
-  const { getTypingUsers } = useTyping()
-  const typingUsers = getTypingUsers(chat.id)
-  const typingLabel =
-    typingUsers.length > 0
-      ? chat.type === "group"
-        ? formatTypingLabel(typingUsers)
-        : "typing"
-      : ""
+  const { getTypingLabel } = useTyping()
 
   return (
     <li key={chat.id}>
@@ -106,8 +98,8 @@ export function ConversationListItem({ chat, variant }: ConversationListItemProp
 
             <div className="mt-1 flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
               <div className="flex items-center gap-1 min-w-0">
-                {typingLabel ? (
-                  <span className="truncate italic text-primary/80">{typingLabel}</span>
+                {getTypingLabel(chat.id, chat.type) ? (
+                  <span className="truncate italic text-primary/80">{getTypingLabel(chat.id, chat.type)}</span>
                 ) : chat.last_message ? (
                   <>
                     {chat.last_message.is_read_by_all ? (

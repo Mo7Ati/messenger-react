@@ -11,13 +11,3 @@ export type PendingRequest = {
     id: number
     user: User
 }
-
-export type SearchUser = {
-    id: number
-    name: string
-    username: string
-    email: string
-    avatar: string
-    avatar_url: string
-    contact_status: ContactStatus
-}

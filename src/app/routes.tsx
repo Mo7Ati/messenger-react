@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from "react-router"
 
 import { EmptyState } from "@/components/empty-state"
-import GuestRoutes from "@/components/guards/guest-routes"
-import ProtectedRoute from "@/components/guards/protected-routes"
+import GuestRoutesWrapper from "@/components/guards/guest-routes-wrapper"
+import ProtectedRouteWrapper from "@/components/guards/protected-routes-wrapper"
 import AppLayout from "@/components/layout/app-layout"
 
 import ForgotPassword from "@/features/auth/pages/forgot-password"
@@ -17,8 +17,8 @@ import ContactPreview from "@/features/contacts/components/contact-preview"
 import { ContactRequests } from "@/features/contacts/pages/contact-requests"
 import Contacts from "@/features/contacts/pages/contacts"
 
-import GroupPreview from "@/features/chats/components/group-preview"
-import Groups from "@/features/chats/pages/groups"
+import GroupPreview from "@/features/groups/components/group-preview"
+import Groups from "@/features/groups/pages/groups"
 
 export function AppRoutes() {
   return (
@@ -26,7 +26,7 @@ export function AppRoutes() {
       <Route path="/" element={<Navigate to="/chats" replace />} />
 
       {/* Guest Routes */}
-      <Route element={<GuestRoutes />}>
+      <Route element={<GuestRoutesWrapper />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -34,7 +34,7 @@ export function AppRoutes() {
       </Route>
 
       {/* Protected Routes */}
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRouteWrapper />}>
         <Route element={<AppLayout />}>
           {/* Chats */}
           <Route path="/chats" element={<Chats />}>

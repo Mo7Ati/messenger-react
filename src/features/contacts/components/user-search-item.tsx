@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { SearchUser } from "@/types/contacts"
+import type { User } from "@/types/general"
 import { cn } from "@/lib/utils"
 
 type UserSearchItemProps = {
-  user: SearchUser
-  onStartChat?: (user: SearchUser) => void
-  onSendRequest?: (user: SearchUser) => void
-  onAcceptRequest?: (user: SearchUser, requestId?: number) => void
+  user: User
+  onStartChat?: (user: User) => void
+  onSendRequest?: (user: User) => void
+  onAcceptRequest?: (user: User, requestId?: number) => void
   disabled?: boolean
   requestId?: number
 }
@@ -20,8 +20,8 @@ export function UserSearchItem({
   disabled = false,
   requestId,
 }: UserSearchItemProps) {
-  const avatarUrl = user.avatar_url ?? user.avatar
-  const status = user.contact_status ?? "none"
+  const avatarUrl = user.avatar_url
+  const status = user.contact_status
 
   const renderActionButton = () => {
     if (status === "none") {
@@ -86,21 +86,23 @@ export function UserSearchItem({
       )}
     >
       <Avatar className="h-12 w-12 shrink-0 rounded-full">
-        <AvatarImage src={avatarUrl} alt={user.name} />
+        <AvatarImage src={avatarUrl} alt={user.username} />
         <AvatarFallback className="rounded-full text-sm">
-          {user.name?.slice(0, 2).toUpperCase() ?? "?"}
+          {user.username.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold truncate">{user.name}</p>
+        <p className="text-sm font-semibold truncate">{user.username}</p>
         <p className="text-xs text-muted-foreground truncate">
-          {user.username ? `@${user.username}` : user.email ?? ""}
+          {`@${user.username}`}
         </p>
-        {/* {user.bio && (
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-            {user.bio}
-          </p>
-        )} */}
+        {
+          user.bio && (
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+              {user.bio}
+            </p>
+          )
+        }
       </div>
       <div className="shrink-0">{renderActionButton()}</div>
     </div>

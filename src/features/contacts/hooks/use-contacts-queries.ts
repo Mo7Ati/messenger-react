@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { contactService } from "@/features/contacts/contacts-service"
 import type { ApiSuccessResponse } from "@/lib/api"
 import type { User } from "@/types/general"
-import type { GetContactResponse, SearchUser } from "@/types/contacts"
+import type { GetContactResponse } from "@/types/contacts"
 
 export function useContacts(options?: { enabled?: boolean }) {
     return useQuery<ApiSuccessResponse<User[]>, Error>({
@@ -21,7 +21,7 @@ export function useContact(id: number, enabled: boolean) {
 }
 
 export function useSearchUsers(query: string) {
-    return useQuery<SearchUser[], Error>({
+    return useQuery<User[], Error>({
         queryKey: ["searchUsers", query],
         queryFn: () => contactService.searchUsers(query),
         enabled: query.length >= 2,

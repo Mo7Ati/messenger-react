@@ -1,4 +1,4 @@
-import SideNavbar from '@/components/layout/side-navbar'
+import SideNavbar from '@/components/navbar/side-navbar'
 import { Outlet } from 'react-router'
 import { MessengerInboxProvider } from '@/features/messaging/messenger-inbox-context'
 import { TypingProvider } from '@/features/messaging/typing-context'
