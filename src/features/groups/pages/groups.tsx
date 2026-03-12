@@ -3,12 +3,12 @@ import { GroupsList } from '../components/groups-list';
 import { useParams } from 'react-router';
 
 const Groups = () => {
-  const { groupId } = useParams<{ groupId: string }>()
+  const { chatId } = useParams<{ chatId: string }>()
 
   return (
     <PageLayout
       list={<GroupsList />}
-      showDetail={!!groupId}
+      showDetail={!!chatId}
     />
   )
 };

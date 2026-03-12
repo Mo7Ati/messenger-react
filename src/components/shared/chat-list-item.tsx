@@ -33,10 +33,10 @@ const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string 
 
 const variantConfig: Record<
   ConversationListVariant,
-  { path: string; paramKey: "chatId" | "groupId" }
+  { path: string; paramKey: "chatId"}
 > = {
   chats: { path: "/chats", paramKey: "chatId" },
-  groups: { path: "/groups", paramKey: "groupId" },
+  groups: { path: "/groups", paramKey: "chatId" },
 }
 
 type ConversationListItemProps = {
@@ -47,7 +47,7 @@ type ConversationListItemProps = {
 
 export function ChatListItem({ chat, variant }: ConversationListItemProps) {
   const navigate = useNavigate()
-  const params = useParams<{ chatId?: string; groupId?: string }>()
+  const params = useParams<{ chatId?: string }>()
   const { path, paramKey } = variantConfig[variant]
   const activeId = params[paramKey]
 

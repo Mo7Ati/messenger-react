@@ -5,15 +5,16 @@ import { ChatListItem } from "@/components/shared/chat-list-item"
 import { SidebarPanel } from "@/components/shared/sidebar-panel"
 import { Plus } from "lucide-react"
 import { useParams } from "react-router"
-import { useGroups } from "../hooks/use-groups-queries"
 import { useChatFiltering } from "@/hooks/use-chat-filtering"
 import { GroupsSkeleton } from "./groups-skeleton"
 import { CreateGroupWindow } from "./create-group-window"
 import type { Chat } from "@/types/general"
+import { useChats } from "@/hooks/use-chats-queries"
 
 export function GroupsList() {
-  const { data: groups = [], isFetching } = useGroups()
-  const { groupId } = useParams<{ groupId: string }>()
+  const { data: chats = [], isFetching } = useChats()
+  const groups = chats.filter((chat) => chat.type === "group")
+  const { chatId } = useParams<{ chatId: string }>()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
 
   const {
@@ -25,7 +26,7 @@ export function GroupsList() {
   return (
     <>
       <SidebarPanel
-        hiddenOnMobileDetail={!!groupId}
+        hiddenOnMobileDetail={!!chatId}
         title="Groups"
         searchPlaceholder="Groups search..."
         searchQuery={searchQuery}

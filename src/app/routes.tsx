@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router"
+import { Navigate, Route, Routes, useNavigate } from "react-router"
 
 import { EmptyState } from "@/components/empty-state"
 import GuestRoutesWrapper from "@/components/guards/guest-routes-wrapper"
@@ -10,17 +10,16 @@ import Login from "@/features/auth/pages/login"
 import Register from "@/features/auth/pages/register"
 import ResetPassword from "@/features/auth/pages/reset-password"
 
-import ChatPreview from "@/features/chats/components/chat-preview"
 import Chats from "@/features/chats/pages/chats"
 
 import ContactPreview from "@/features/contacts/components/contact-preview"
 import { ContactRequests } from "@/features/contacts/pages/contact-requests"
 import Contacts from "@/features/contacts/pages/contacts"
-
-import GroupPreview from "@/features/groups/components/group-preview"
 import Groups from "@/features/groups/pages/groups"
+import ChatPreview from "@/features/messaging/components/chat-preview"
 
 export function AppRoutes() {
+  const navigate = useNavigate()
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/chats" replace />} />
@@ -39,13 +38,13 @@ export function AppRoutes() {
           {/* Chats */}
           <Route path="/chats" element={<Chats />}>
             <Route index element={<EmptyState variant="no-chat" />} />
-            <Route path=":chatId" element={<ChatPreview />} />
+            <Route path=":chatId" element={<ChatPreview onBack={() => navigate("/chats")} />} />
           </Route>
 
           {/* Groups */}
           <Route path="/groups" element={<Groups />}>
             <Route index element={<EmptyState variant="no-group" />} />
-            <Route path=":groupId" element={<GroupPreview />} />
+            <Route path=":chatId" element={<ChatPreview onBack={() => navigate("/groups")} />} />
           </Route>
 
           {/* Contacts */}

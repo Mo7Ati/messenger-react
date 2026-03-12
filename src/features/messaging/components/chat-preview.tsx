@@ -1,7 +1,7 @@
 import ChatWindow from "@/features/messaging/components/chat/chat-window"
-import useChatScreen from "../hooks/use-chat-screen";
+import useChatScreen from "@/hooks/use-chat-screen";
 
-export default function ChatPreview() {
+export default function ChatPreview({ onBack }: { onBack: () => void }) {
   const screen = useChatScreen();
 
   return (
@@ -11,7 +11,7 @@ export default function ChatPreview() {
       messages={screen.messages}
       isFetching={screen.isFetching}
       isSending={screen.isSending}
-      onBack={screen.onBack}
+      onBack={onBack}
       onSend={screen.handleSend}
     />
   )

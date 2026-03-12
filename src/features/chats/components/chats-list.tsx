@@ -2,10 +2,10 @@ import { EmptyState } from "@/components/empty-state"
 import { ChatListItem } from "@/components/shared/chat-list-item"
 import { SidebarPanel } from "@/components/shared/sidebar-panel"
 import { useParams } from "react-router"
-import { useChats } from "../hooks/use-chats-queries"
 import { useChatFiltering } from "@/hooks/use-chat-filtering"
 import { ChatsSkeleton } from "./chats-skeleton"
 import type { Chat } from "@/types/general"
+import { useChats } from "@/hooks/use-chats-queries"
 
 export function ChatsList() {
   const { data: chats = [], isFetching } = useChats()

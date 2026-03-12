@@ -13,9 +13,6 @@ const useChatScreen = () => {
 
     const { chatId } = useParams<{ chatId: string }>()
     const { data: chat, isFetching } = useChat(Number(chatId), !!chatId)
-    const navigate = useNavigate()
-
-    const onBack = () => navigate("/chats");
 
     const handleSend = async ({ body, files }: { body: string, files: File[] }) => {
         try {
@@ -72,7 +69,6 @@ const useChatScreen = () => {
         input,
         isFetching,
         isSending,
-        onBack,
         setInput,
         handleSend,
     }
