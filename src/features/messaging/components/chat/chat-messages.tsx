@@ -1,11 +1,11 @@
-import type { ConversationType, Message } from "@/types/general"
+import type { ChatType, Message } from "@/types/general"
 import { EmptyState } from "@/components/empty-state"
 import { MessageItem } from "../messages/message-item"
 import { useEffect, useRef } from "react"
 
 type MessagesListProps = {
     messages: Message[]
-    chatType?: ConversationType
+    chatType?: ChatType
 }
 
 export function ChatMessages({

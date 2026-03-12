@@ -1,20 +1,18 @@
-import { useNavigate, useParams } from "react-router"
-import { useContact } from "../hooks/use-contacts-queries";
 import ChatWindow from "@/features/messaging/components/chat/chat-window";
+import useContactScreen from "../hooks/use-contact-screen";
 
 export default function ContactPreview() {
-  const { contactId } = useParams<{ contactId: string }>()
-  const { data, isPending } = useContact(Number(contactId));
-  const navigate = useNavigate();
-
+  const screen = useContactScreen();
 
   return (
     <ChatWindow
-      participants={[data?.contact!]}
-      title={data?.contact?.username ?? "Contact"}
-      messages={data?.chat?.messages ?? []}
-      isPending={isPending}
-      onBack={() => navigate("/groups")}
+      participants={screen.participants}
+      title={screen.title}
+      messages={screen.messages}
+      isFetching={screen.isFetching}
+      isSending={screen.isSending}
+      onBack={screen.onBack}
+      onSend={screen.handleSend}
     />
   )
 }

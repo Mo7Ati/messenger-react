@@ -10,7 +10,7 @@ type ChatWindowProps = {
   participants: User[]
   messages: Message[]
   asGroup?: boolean
-  isPending: boolean
+  isFetching: boolean
   isSending: boolean
   onBack: () => void
   onSend: (payload: { body: string; files: File[] }) => void | Promise<void>
@@ -21,13 +21,13 @@ export const ChatWindow = ({
   participants,
   messages,
   asGroup = false,
-  isPending,
+  isFetching,
   isSending,
   onBack,
   onSend,
 }: ChatWindowProps) => {
 
-  if (isPending) {
+  if (isFetching) {
     return <ChatWindowSkeleton />
   }
 

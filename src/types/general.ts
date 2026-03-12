@@ -1,4 +1,4 @@
-export type ConversationType = "peer" | "group"
+export type ChatType = "peer" | "group"
 
 
 export type User = {
@@ -36,7 +36,7 @@ export type Message = {
 export type Chat = {
     id: number
     label: string
-    type: ConversationType
+    type: ChatType
     last_message: Message
     new_messages: number
     created_at: string

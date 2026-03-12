@@ -9,7 +9,7 @@ export default function ChatPreview() {
       participants={screen.participants}
       title={screen.title}
       messages={screen.messages}
-      isPending={screen.isPending}
+      isFetching={screen.isFetching}
       isSending={screen.isSending}
       onBack={screen.onBack}
       onSend={screen.handleSend}

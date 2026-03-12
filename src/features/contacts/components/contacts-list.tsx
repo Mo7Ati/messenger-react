@@ -18,7 +18,7 @@ const ContactsList = () => {
             data: [],
             extra: { pending_requests: 0 },
         },
-        isPending,
+        isFetching,
         isError,
     } = useContacts()
 
@@ -45,7 +45,7 @@ const ContactsList = () => {
                 searchPlaceholder="Contacts search..."
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                isLoading={isPending}
+                isLoading={isFetching}
                 skeleton={<ContactsSkeleton />}
                 actions={
                     <div className="flex min-w-0 flex-wrap items-center gap-2">

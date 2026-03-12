@@ -12,7 +12,7 @@ import { CreateGroupWindow } from "./create-group-window"
 import type { Chat } from "@/types/general"
 
 export function GroupsList() {
-  const { data: groups = [], isPending } = useGroups()
+  const { data: groups = [], isFetching } = useGroups()
   const { groupId } = useParams<{ groupId: string }>()
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
 
@@ -30,7 +30,7 @@ export function GroupsList() {
         searchPlaceholder="Groups search..."
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        isLoading={isPending}
+        isLoading={isFetching}
         skeleton={<GroupsSkeleton />}
         actions={
           <Button type="button" onClick={() => setIsCreateGroupOpen(true)}>

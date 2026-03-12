@@ -8,7 +8,7 @@ import { ChatsSkeleton } from "./chats-skeleton"
 import type { Chat } from "@/types/general"
 
 export function ChatsList() {
-  const { data: chats = [], isPending } = useChats()
+  const { data: chats = [], isFetching } = useChats()
   const { chatId } = useParams<{ chatId: string }>()
 
   const {
@@ -24,7 +24,7 @@ export function ChatsList() {
       searchPlaceholder="Chats search..."
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
-      isLoading={isPending}
+      isLoading={isFetching}
       skeleton={<ChatsSkeleton />}
     >
       {chats.length === 0 ? (
