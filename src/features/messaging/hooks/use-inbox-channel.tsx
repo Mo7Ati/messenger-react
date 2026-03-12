@@ -1,18 +1,17 @@
 import { useUser } from "@/features/auth/auth-context"
-import type { Chat, Message } from "@/types/general";
-import type { GetContactResponse } from "@/types/contacts";
+import type { Message } from "@/types/general";
 import { useEcho } from "@laravel/echo-react"
-import { useQueryClient } from "@tanstack/react-query";
+import useUpdateCache from "@/hooks/use-update-cache";
 
 const useInboxChannel = () => {
     const user = useUser();
-    const queryClient = useQueryClient();
+    const { syncMessage } = useUpdateCache()
 
-    const syncIncomingMessage = (message: Message) => {
-
+    const syncIncomingMessage = ({ message }: { message: Message }) => {
+        syncMessage(message)
     }
 
-    useEcho<Message>(`messenger.user.${user.id}`, "MessageCreated", syncIncomingMessage);
+    useEcho<{ message: Message }>(`messenger.user.${user.id}`, "MessageCreated", syncIncomingMessage);
 }
 
 export default useInboxChannel

@@ -5,7 +5,7 @@ import type { Chat, Message } from "@/types/general"
  * Update a single chat's last_message in the cached chats list.
  * Used after sending a message (resets new_messages to 0).
  */
-export function updateChatLastMessage(queryClient: QueryClient, message: Message) {
+export function updateChatsList(queryClient: QueryClient, message: Message) {
     queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
         if (!chats) return chats
         return chats.map((c) => {

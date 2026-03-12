@@ -27,8 +27,8 @@ export type Message = {
     is_mine: boolean
     created_at: string
     user: User
-    chat_id?: number
-    type?: "text" | "attachment"
+    chat_id: number
+    type: "text" | "attachment"
     attachments?: Attachment[]
     chat?: Chat
 }
