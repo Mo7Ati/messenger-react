@@ -12,7 +12,8 @@ const useChatScreen = () => {
     const { syncMessage } = useUpdateCache()
 
     const { chatId } = useParams<{ chatId: string }>()
-    const { data: chat, isFetching } = useChat(Number(chatId), !!chatId)
+    const numericChatId = Number(chatId)
+    const { data: chat, isFetching } = useChat(numericChatId , !!numericChatId)
 
     const handleSend = async ({ body, files }: { body: string, files: File[] }) => {
         try {
@@ -63,9 +64,11 @@ const useChatScreen = () => {
 
 
     return {
+        chatId: numericChatId,
         participants: chat?.participants ?? [],
         title: chat?.label ?? "Chat",
         messages: chat?.messages ?? [],
+        typingLabel: chat?.typing_label ?? "",
         input,
         isFetching,
         isSending,

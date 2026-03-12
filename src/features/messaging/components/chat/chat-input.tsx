@@ -7,12 +7,14 @@ import { useChatInput, type SendMessagePayload } from "../../hooks/use-chat-inpu
 type ChatInputProps = {
     onSend: (payload: SendMessagePayload) => Promise<void> | void
     isSending?: boolean
+    chatId?: number
 }
 
 
 export default function ChatInput({
     onSend,
     isSending = false,
+    chatId,
 }: ChatInputProps) {
     const {
         input,
@@ -20,7 +22,7 @@ export default function ChatInput({
         fileInputRef,
         canSend,
         ACCEPTED_FILE_TYPES,
-        setInput,
+        handleInputChange,
         openFilePicker,
         handleFileChange,
         removeFile,
@@ -28,6 +30,7 @@ export default function ChatInput({
     } = useChatInput({
         onSend,
         isSending,
+        chatId,
     })
 
     return (
@@ -93,7 +96,7 @@ export default function ChatInput({
                 <Input
                     placeholder="Type a message..."
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleInputChange}
                     className="h-9 min-w-0 flex-1 border-0 bg-muted/50"
                     disabled={isSending}
                 />

@@ -9,6 +9,8 @@ type ChatWindowProps = {
   title: string
   participants: User[]
   messages: Message[]
+  typingLabel?: string
+  chatId?: number
   asGroup?: boolean
   isFetching: boolean
   isSending: boolean
@@ -20,6 +22,8 @@ export const ChatWindow = ({
   title,
   participants,
   messages,
+  typingLabel,
+  chatId,
   asGroup = false,
   isFetching,
   isSending,
@@ -39,8 +43,15 @@ export const ChatWindow = ({
       {/* messages */}
       <ChatMessages messages={messages} chatType={asGroup ? "group" : "peer"} />
 
+      {/* typing indicator */}
+      {typingLabel && (
+        <p className="px-4 py-1 text-sm italic text-muted-foreground">
+          {typingLabel}
+        </p>
+      )}
+
       {/* input */}
-      <ChatInput onSend={onSend} isSending={isSending} />
+      <ChatInput onSend={onSend} isSending={isSending} chatId={chatId} />
     </div >
   )
 }

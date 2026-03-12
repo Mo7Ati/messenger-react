@@ -9,6 +9,8 @@ export default function ContactPreview() {
       participants={screen.participants}
       title={screen.title}
       messages={screen.messages}
+      typingLabel={screen.typingLabel || undefined}
+      chatId={screen.chatId}
       isFetching={screen.isFetching}
       isSending={screen.isSending}
       onBack={screen.onBack}

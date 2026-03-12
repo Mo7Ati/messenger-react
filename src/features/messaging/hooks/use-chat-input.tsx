@@ -1,5 +1,7 @@
 import { useRef, useState } from "react"
 
+import { useTyping } from "./use-typing"
+
 export type SendMessagePayload = {
     body: string
     files: File[]
@@ -8,13 +10,17 @@ export type SendMessagePayload = {
 type UseChatInputOptions = {
     onSend: (payload: SendMessagePayload) => Promise<void> | void
     isSending?: boolean
+    chatId?: number
 }
 
 export function useChatInput({
     onSend,
     isSending = false,
+    chatId,
 }: UseChatInputOptions) {
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const { handleTyping } = useTyping(chatId)
+
     const ACCEPTED_FILE_TYPES =
         "image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain,application/zip,audio/mpeg,video/mp4,audio/wav"
 
@@ -67,13 +73,18 @@ export function useChatInput({
         reset()
     }
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value)
+        handleTyping()
+    }
+
     return {
         input,
         files,
         fileInputRef,
         canSend,
         ACCEPTED_FILE_TYPES,
-        setInput,
+        handleInputChange,
         openFilePicker,
         handleFileChange,
         removeFile,

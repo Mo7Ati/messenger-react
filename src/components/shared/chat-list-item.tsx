@@ -93,7 +93,11 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
 
             <div className="mt-1 flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
               <div className="flex items-center gap-1 min-w-0">
-                {chat.last_message ? (
+                {chat.typing_label ? (
+                  <span className="truncate italic text-primary">
+                    {chat.typing_label}
+                  </span>
+                ) : chat.last_message ? (
                   <>
                     {chat.last_message.is_read_by_all ? (
                       <CheckCheck className="h-4 w-4 shrink-0 text-emerald-500" />

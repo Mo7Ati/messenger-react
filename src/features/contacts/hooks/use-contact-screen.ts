@@ -42,7 +42,6 @@ const useContactScreen = () => {
       const { data: sentMessage } = await api.post<Message>("/messages", formData)
 
       syncMessage(sentMessage, Number(contactId))
-      console.log("sentMessage", sentMessage.user_id, Number(contactId))
 
       // Update the contact detail cache
       // queryClient.setQueryData<GetContactResponse>(["contact", Number(contactId)], (prev) => {
@@ -70,6 +69,8 @@ const useContactScreen = () => {
     participants: data?.contact ? [data.contact] : [],
     title: data?.contact?.username ?? "Contact",
     messages: data?.chat?.messages ?? [],
+    chatId: data?.chat?.id,
+    typingLabel: data?.chat?.typing_label ?? "",
     isFetching,
     isSending,
     onBack,

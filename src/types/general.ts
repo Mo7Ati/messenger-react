@@ -33,6 +33,11 @@ export type Message = {
     chat?: Chat
 }
 
+export type TypingUser = {
+    name: string
+    lastTypingAt: number
+}
+
 export type Chat = {
     id: number
     label: string
@@ -42,4 +47,6 @@ export type Chat = {
     created_at: string
     participants: User[]
     messages: Message[]
+    typing_label: string
+    typing_users?: Record<number, TypingUser>
 }

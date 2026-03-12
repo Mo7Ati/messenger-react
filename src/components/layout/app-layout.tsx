@@ -1,9 +1,9 @@
 import SideNavbar from '@/components/navbar/side-navbar'
-import useInboxChannel from '@/features/messaging/hooks/use-inbox-channel'
+import useChannels from '@/hooks/use-channels';
 import { Outlet } from 'react-router'
 
 const AppLayout = () => {
-  useInboxChannel();
+  useChannels();
   return (
     <div className="flex h-screen w-screen">
       <SideNavbar />
