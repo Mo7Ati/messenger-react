@@ -2,13 +2,13 @@ import { useState, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import { useContacts } from "@/features/contacts/hooks/use-contacts-queries"
-// import { useCreateGroup } from "./use-groups-queries"
+import { useCreateChat } from "@/hooks/use-chats-queries"
 
 export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
     const navigate = useNavigate()
     const { data: contactsResponse } = useContacts()
     const contacts = useMemo(() => contactsResponse?.data ?? [], [contactsResponse?.data])
-    // const createGroup = useCreateGroup()
+    const createChat = useCreateChat()
 
     const [label, setLabel] = useState("")
     const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -36,26 +36,26 @@ export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
             return
         }
 
-        // createGroup.mutate(
-        //     {
-        //         label: trimmedLabel,
-        //         participants_ids: selectedIds.map(Number),
-        //     },
-        //     {
-        //         onSuccess: (created) => {
-        //             onClose()
-        //             navigate(`/groups/${created.id}`)
-        //             toast.success("Group created")
-        //         },
-        //         onError: (err) => {
-        //             const message =
-        //                 err && typeof err === "object" && "message" in err
-        //                     ? String((err as { message: string }).message)
-        //                     : "Failed to create group"
-        //             toast.error(message)
-        //         },
-        //     }
-        // )
+        createChat.mutate(
+            {
+                label: trimmedLabel,
+                participants_ids: selectedIds.map(Number),
+            },
+            {
+                onSuccess: (created) => {
+                    onClose()
+                    navigate(`/groups/${created.id}`)
+                    toast.success("Group created")
+                },
+                onError: (err) => {
+                    const message =
+                        err && typeof err === "object" && "message" in err
+                            ? String((err as { message: string }).message)
+                            : "Failed to create group"
+                    toast.error(message)
+                },
+            }
+        )
     }
 
     return {
@@ -64,7 +64,7 @@ export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
         selectedIds,
         setSelectedIds,
         participantOptions,
-        // isPending: createGroup.isPending,
+        isPending: createChat.isPending,
         handleSubmit,
     }
 }
