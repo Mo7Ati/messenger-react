@@ -1,10 +1,19 @@
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
+import { useGroup } from "../hooks/use-groups-queries"
+import ChatWindow from "@/features/messaging/components/chat/chat-window";
 
 export default function GroupPreview() {
   const { groupId } = useParams<{ groupId: string }>()
+  const { data: group, isPending } = useGroup(Number(groupId));
+  const navigate = useNavigate();
+
   return (
-    <div>
-      <h1>Group Preview</h1>
-    </div>
+    <ChatWindow
+      participants={group?.participants ?? []}
+      title={group?.label ?? "Group"}
+      messages={group?.messages ?? []}
+      isPending={isPending}
+      onBack={() => navigate("/groups")}
+    />
   )
 }

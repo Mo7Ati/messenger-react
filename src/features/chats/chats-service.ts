@@ -10,5 +10,4 @@ export const chatsService = {
         const { data } = await api.get<Chat>(`/chats/${id}`)
         return data
     },
-    
 }

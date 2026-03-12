@@ -30,6 +30,7 @@ export type Message = {
     chat_id?: number
     type?: "text" | "attachment"
     attachments?: Attachment[]
+    chat?: Chat
 }
 
 export type Chat = {

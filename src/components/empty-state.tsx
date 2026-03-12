@@ -10,6 +10,7 @@ export type EmptyStateVariant =
   | "no-search-results"
   | "no-group"
   | "no-groups-list"
+  | "no-messages"
 
 const config: Record<
   EmptyStateVariant,
@@ -53,6 +54,11 @@ const config: Record<
     description: "Create or join a group to see it here.",
     cta: "New Group",
     ctaPath: "/groups",
+  },
+  "no-messages": {
+    icon: MessageCircle,
+    title: "No messages yet",
+    description: "Start the conversation by sending a message.",
   },
 }
 

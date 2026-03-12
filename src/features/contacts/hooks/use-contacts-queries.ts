@@ -12,11 +12,10 @@ export function useContacts(options?: { enabled?: boolean }) {
     })
 }
 
-export function useContact(id: number, enabled: boolean) {
+export function useContact(id: number) {
     return useQuery<GetContactResponse, Error>({
         queryKey: ["contact", id],
         queryFn: () => contactService.getContact(id),
-        enabled: enabled && !!id,
     })
 }
 
