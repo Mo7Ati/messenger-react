@@ -43,21 +43,8 @@ const useContactScreen = () => {
 
       syncMessage(sentMessage, Number(contactId))
 
-      // Update the contact detail cache
-      // queryClient.setQueryData<GetContactResponse>(["contact", Number(contactId)], (prev) => {
-      //   if (!prev || !prev.chat) return prev
-
-      //   return {
-      //     ...prev,
-      //     chat: {
-      //       ...prev.chat,
-      //       messages: [...prev.chat.messages, sentMessage],
-      //       last_message: sentMessage,
-      //     },
-      //   }
-      // })
-
     } catch (error) {
+      console.log("error", error);
       toast.error("Failed to send message. Please try again.")
     } finally {
       setIsSending(false)

@@ -3,6 +3,7 @@ import type { Chat, ChatType, Message, TypingUser } from "@/types/general"
 import { useUser } from "@/features/auth/auth-context"
 import { useQueryClient } from "@tanstack/react-query"
 
+
 type TypingWhisperPayload = {
     chat_id: number
     user_id: number
@@ -57,6 +58,43 @@ const useUpdateCache = () => {
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
             if (!chats) return chats
 
+            if (chats.length === 0) {
+                return [
+                    {
+                        id: message.chat_id,
+                        label: message.user.username,
+                        last_message: message,
+                        new_messages: 1,
+                        created_at: message.created_at,
+                        participants: [message.user],
+                        messages: [message],
+                        type: "peer",
+                        typing_label: "",
+                        typing_users: {},
+                    }
+                ]
+            }
+
+
+            const chatExists = chats.some((c) => c.id === message.chat_id)
+            if (!chatExists) {
+                return [
+                    {
+                        id: message.chat_id,
+                        label: message.user.username,
+                        last_message: message,
+                        new_messages: 1,
+                        created_at: message.created_at,
+                        participants: [message.user],
+                        messages: [message],
+                        type: "peer",
+                        typing_label: "",
+                        typing_users: {},
+                    }
+                ]
+            }
+
+
             return chats.map((c) => {
                 if (c.id === message.chat_id) {
                     return {
@@ -76,15 +114,30 @@ const useUpdateCache = () => {
             return exists
                 ? chat
                 : {
-                      ...chat,
-                      messages: [...chat.messages, message],
-                  }
+                    ...chat,
+                    messages: [...chat.messages, message],
+                }
         })
 
         queryClient.setQueryData<GetContactResponse>(
             ["contact", contactId ?? message.user_id],
             (response) => {
-                if (!response || !response.chat) return response
+                if (!response) return response
+                if (!response.chat) return {
+                    ...response,
+                    chat: {
+                        id: message.chat_id,
+                        label: message.user.username,
+                        last_message: message,
+                        new_messages: 1,
+                        created_at: message.created_at,
+                        participants: [message.user],
+                        type: "peer",
+                        messages: [message],
+                        typing_label: "",
+                        typing_users: {},
+                    },
+                }
 
                 const chat = response.chat
                 const exists = chat.messages.some((m) => m.id === message.id)
@@ -92,14 +145,22 @@ const useUpdateCache = () => {
                 return exists
                     ? response
                     : {
-                          ...response,
-                          chat: {
-                              ...chat,
-                              messages: [...chat.messages, message],
-                          },
-                      }
+                        ...response,
+                        chat: {
+                            ...chat,
+                            messages: [...chat.messages, message],
+                        },
+                    }
             }
         )
+    }
+
+    function appendGroupToGroupsList(group: Chat) {
+        console.log("appendGroupToGroupsList", group);
+        queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
+            if (!chats) return chats
+            return [...chats, group]
+        })
     }
 
     function applyTypingToChat(
@@ -172,7 +233,7 @@ const useUpdateCache = () => {
         queryClient.setQueryData<GetContactResponse>(
             ["contact", payload.user_id],
             (response) => {
-               
+
                 if (!response?.chat || response.chat.id !== payload.chat_id)
                     return response
                 return {
@@ -187,6 +248,7 @@ const useUpdateCache = () => {
         syncMessage,
         syncTyping,
         syncStopTyping,
+        appendGroupToGroupsList,
     }
 }
 

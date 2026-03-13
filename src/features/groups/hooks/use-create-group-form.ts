@@ -1,8 +1,11 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import { useContacts } from "@/features/contacts/hooks/use-contacts-queries"
 import { useCreateChat } from "@/hooks/use-chats-queries"
+import type { Chat } from "@/types/general"
+import { useQueryClient } from "@tanstack/react-query"
+import useUpdateCache from "@/hooks/use-update-cache"
 
 export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
     const navigate = useNavigate()
@@ -12,6 +15,9 @@ export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
 
     const [label, setLabel] = useState("")
     const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+    const { appendGroupToGroupsList } = useUpdateCache();
+
 
     useEffect(() => {
         if (!isOpen) {
@@ -45,6 +51,7 @@ export function useCreateGroupForm(isOpen: boolean, onClose: () => void) {
                 onSuccess: (created) => {
                     onClose()
                     navigate(`/groups/${created.id}`)
+                    appendGroupToGroupsList(created)
                     toast.success("Group created")
                 },
                 onError: (err) => {
