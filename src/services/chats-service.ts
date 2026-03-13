@@ -1,5 +1,5 @@
 import api from "@/lib/api"
-import type { Chat, ChatType } from "@/types/general"
+import type { Chat } from "@/types/general"
 
 type CreateChatParams = {
     label: string

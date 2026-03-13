@@ -1,4 +1,4 @@
-import { FileText, Image as ImageIcon, Video, Download } from "lucide-react"
+import { FileText, Image as ImageIcon, Download } from "lucide-react"
 import type { Attachment } from "@/types/general"
 import { Button } from "@/components/ui/button"
 import { formatFileSize } from "@/lib/utils"
