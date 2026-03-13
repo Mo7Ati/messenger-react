@@ -1,7 +1,8 @@
-import type { GetContactResponse } from "@/types/contacts"
+import type { GetContactResponse, ContactRequest, ContactRequestStatus } from "@/types/contacts"
 import type { Chat, ChatType, Message, TypingUser } from "@/types/general"
 import { useUser } from "@/features/auth/auth-context"
 import { useQueryClient } from "@tanstack/react-query"
+import type { ApiSuccessResponse } from "@/lib/api"
 
 
 type TypingWhisperPayload = {
@@ -244,11 +245,71 @@ const useUpdateCache = () => {
         )
     }
 
+    function addReceivedContactRequest(request: ContactRequest) {
+        const sender = request.sender
+
+        queryClient.setQueryData<unknown[] | undefined>(["pendingRequests"], (existing) => {
+            const list = (existing as unknown[] | undefined) ?? []
+            const alreadyExists = list.some((u: any) => u?.id === sender.id)
+            if (alreadyExists) return list
+            return [...list, sender]
+        })
+
+        queryClient.setQueryData<ApiSuccessResponse<any[]> | undefined>(
+            ["contacts"],
+            (existing) => {
+                if (!existing) return existing
+                const currentCount = Number(existing.extra?.pending_requests ?? 0)
+                return {
+                    ...existing,
+                    extra: {
+                        ...existing.extra,
+                        pending_requests: currentCount + 1,
+                    },
+                }
+            }
+        )
+    }
+
+    function updateSentContactRequestStatus(request: ContactRequest) {
+        const receiver = request.receiver
+        const status: ContactRequestStatus = request.status
+
+        queryClient.setQueryData<unknown[] | undefined>(["sentRequests"], (existing) => {
+            const list = (existing as unknown[] | undefined) ?? []
+
+            if (status === "pending") {
+                const alreadyExists = list.some((u: any) => u?.id === receiver.id)
+                if (alreadyExists) return list
+                return [...list, receiver]
+            }
+
+            return list.filter((u: any) => u?.id !== receiver.id)
+        })
+
+        if (status === "accepted") {
+            queryClient.setQueryData<ApiSuccessResponse<any[]> | undefined>(
+                ["contacts"],
+                (existing) => {
+                    if (!existing) return existing
+                    const alreadyExists = existing.data.some((u: any) => u?.id === receiver.id)
+                    if (alreadyExists) return existing
+                    return {
+                        ...existing,
+                        data: [...existing.data, receiver],
+                    }
+                }
+            )
+        }
+    }
+
     return {
         syncMessage,
         syncTyping,
         syncStopTyping,
         appendGroupToGroupsList,
+        addReceivedContactRequest,
+        updateSentContactRequestStatus,
     }
 }
 

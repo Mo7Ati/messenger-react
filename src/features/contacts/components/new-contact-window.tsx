@@ -105,17 +105,21 @@ export function NewContactWindow({ isOpen, onClose }: NewContactWindowProps) {
               </p>
             ) : (
               <ul className="space-y-1 pr-2">
-                {searchResults.map((user) => (
-                  <li key={user.id}>
-                    <UserSearchItem
-                      user={user}
-                      onStartChat={handleStartChat}
-                      onSendRequest={handleSendRequest}
-                      onAcceptRequest={handleAcceptRequest}
-                      disabled={actionLoadingId === user.id}
-                    />
-                  </li>
-                ))}
+                {searchResults.map((user) => {
+                  console.log(user);
+
+                  return (
+                    <li key={user.id}>
+                      <UserSearchItem
+                        user={user}
+                        onStartChat={handleStartChat}
+                        onSendRequest={handleSendRequest}
+                        onAcceptRequest={handleAcceptRequest}
+                        disabled={actionLoadingId === user.id}
+                      />
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </ScrollArea>

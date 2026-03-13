@@ -53,6 +53,11 @@ const ContactsList = () => {
                             <Link to="/contacts/requests" className="flex items-center gap-1.5">
                                 <UserPlus className="h-4 w-4 shrink-0" />
                                 <span>Requests</span>
+                                {Number((response.extra as any)?.pending_requests ?? 0) > 0 && (
+                                    <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
+                                        {Number((response.extra as any)?.pending_requests ?? 0)}
+                                    </span>
+                                )}
                             </Link>
                         </Button>
 

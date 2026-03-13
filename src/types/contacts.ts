@@ -11,3 +11,20 @@ export type PendingRequest = {
     id: number
     user: User
 }
+
+export type ContactRequestStatus = "pending" | "accepted" | "cancelled"
+
+export type ContactRequest = {
+    id: number
+    sender: User
+    receiver: User
+    status: ContactRequestStatus
+}
+
+export type ContactRequestSentPayload = {
+    contact_request: ContactRequest
+}
+
+export type ContactRequestUpdatedPayload = {
+    contact_request: ContactRequest
+}
