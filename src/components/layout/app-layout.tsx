@@ -13,7 +13,7 @@ const AppLayout = () => {
     (contactId != null && location.pathname !== "/contacts/requests")
 
   return (
-    <div className="flex h-dvh w-screen overflow-hidden">
+    <div className="fixed inset-0 flex overflow-hidden">
       <SideNavbar />
       <div className={cn("flex-1 overflow-hidden bg-accent", !isChatWindowOpen && "pb-16 md:pb-0")}>
         <Outlet />
