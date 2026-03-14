@@ -36,7 +36,7 @@ export function GroupsList() {
         actions={
           <Button type="button" onClick={() => setIsCreateGroupOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            New Group
+            New
           </Button>
         }
       >

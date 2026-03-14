@@ -50,26 +50,23 @@ const ContactsList = () => {
                 actions={
                     <div className="flex min-w-0 flex-wrap items-center gap-2">
                         <Button variant="ghost" size="sm" className="rounded-xl shrink-0" asChild>
-                            <Link to="/contacts/requests" className="flex items-center gap-1.5">
+                            <Link to="/contacts/requests" className="flex items-center gap-1.5" type="button">
                                 <UserPlus className="h-4 w-4 shrink-0" />
-                                <span>Requests</span>
-                                {Number((response.extra as any)?.pending_requests ?? 0) > 0 && (
+                                {Number(response.extra.pending_requests ?? 0) > 0 && (
                                     <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
-                                        {Number((response.extra as any)?.pending_requests ?? 0)}
+                                        {Number(response.extra.pending_requests ?? 0)}
                                     </span>
                                 )}
                             </Link>
                         </Button>
 
                         <Button
-                            variant="outline"
                             size="sm"
                             className="rounded-xl shrink-0"
-                            type="button"
                             onClick={() => setIsNewContactWindowOpen(true)}
                         >
                             <Plus className="mr-1.5 h-4 w-4" />
-                            New Contact
+                            New
                         </Button>
                     </div>
                 }
