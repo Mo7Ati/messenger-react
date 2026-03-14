@@ -34,7 +34,7 @@ export default function ChatInput({
     })
 
     return (
-        <div className="border-t bg-background px-4 py-3">
+        <div className="sticky bottom-0 z-10 border-t bg-background px-4 py-3">
             {files.length > 0 && (
                 <div className="mb-3 flex flex-col gap-2">
                     {files.map((file, index) => (

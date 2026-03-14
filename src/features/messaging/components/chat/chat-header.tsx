@@ -13,7 +13,7 @@ type ChatHeaderType = {
 
 const ChatHeader = ({ title, participants, onBack }: ChatHeaderType) => {
     return (
-        <div className="flex items-center gap-3 px-4 py-3 border-b">
+        <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 border-b bg-background">
             {/* Back Button For Mobile */}
             <Button
                 type="button"
