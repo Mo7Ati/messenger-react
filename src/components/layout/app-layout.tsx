@@ -1,13 +1,21 @@
 import SideNavbar from '@/components/navbar/side-navbar'
 import useChannels from '@/hooks/use-channels';
-import { Outlet } from 'react-router'
+import { Outlet, useLocation, useParams } from 'react-router'
+import { cn } from '@/lib/utils'
 
 const AppLayout = () => {
   useChannels();
+  const location = useLocation()
+  const { chatId, contactId, groupId } = useParams()
+  const isChatWindowOpen =
+    chatId != null ||
+    groupId != null ||
+    (contactId != null && location.pathname !== "/contacts/requests")
+
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-dvh w-screen overflow-hidden">
       <SideNavbar />
-      <div className="flex-1 pb-16 md:pb-0 bg-accent">
+      <div className={cn("flex-1 overflow-hidden bg-accent", !isChatWindowOpen && "pb-16 md:pb-0")}>
         <Outlet />
       </div>
     </div>
