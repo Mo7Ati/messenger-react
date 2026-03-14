@@ -24,7 +24,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         >
             <div className="flex flex-col gap-2">
                 {hasBody ? (
-                    <p className="whitespace-pre-wrap break-words text-sm">
+                    <p className="whitespace-pre-wrap text-sm [overflow-wrap:anywhere]">
                         {message.body}
                     </p>
                 ) : null}

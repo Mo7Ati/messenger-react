@@ -10,6 +10,8 @@ import "@/app/echo-config"
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
       // Don't retry on 4xx (e.g. 404) — they won't succeed. Only retry on 5xx or network.
       retry: (failureCount, error) => {
         if (isApiError(error) && error.status >= 400 && error.status < 500) return false

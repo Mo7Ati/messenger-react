@@ -33,7 +33,7 @@ export function MessageItem({
 
             <div
                 className={cn(
-                    "flex max-w-[85%] flex-col gap-1 sm:max-w-[75%] md:max-w-[60%]",
+                    "flex min-w-0 max-w-[85%] flex-col gap-1 sm:max-w-[75%] md:max-w-[60%]",
                     isMine && "items-end"
                 )}
             >

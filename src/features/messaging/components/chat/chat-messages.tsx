@@ -29,7 +29,7 @@ export function ChatMessages({
     }
 
     return (
-        <div ref={scrollRef} className="h-0 flex-1 overflow-y-auto px-4 py-4">
+        <div ref={scrollRef} className="h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-4">
             <div className="flex flex-col gap-3">
                 {messages.map((message, index) => {
                     const previousMessage = index > 0 ? messages[index - 1] : null
