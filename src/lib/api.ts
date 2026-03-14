@@ -11,11 +11,12 @@ export type ApiSuccessResponse<T> = {
   extra: Record<string, unknown>;
 }
 
-export type ApiErrorResponse = {
-  status: false;
-  data: null;
+/** Normalized error thrown by the API client (e.g. 404, 401, 500). */
+export type ApiError = {
+  status: number;
   message: string;
-  error_code: string;
+  error_code?: string;
+  data?: unknown;
 }
 
 /** API instance that returns unwrapped response data (no AxiosResponse). */
@@ -57,7 +58,19 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    return Promise.reject(error.response?.data ?? error.message);
+    const status = error.response?.status ?? 0
+    const data = error.response?.data
+    const message =
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message: unknown }).message)
+        : typeof data === 'string'
+          ? data
+          : error.message ?? 'Request failed'
+    const error_code =
+      data && typeof data === 'object' && 'error_code' in data
+        ? String((data as { error_code: unknown }).error_code)
+        : undefined
+    return Promise.reject({ status, message, error_code, data } satisfies ApiError)
   }
 )
 

@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/empty-state"
 import { SidebarPanel } from "@/components/shared/sidebar-panel"
 import { cn } from "@/lib/utils"
 import { MoreVertical, Plus, UserPlus } from "lucide-react"
+import { getErrorMessage } from "@/lib/api-error"
 import { toast } from "sonner"
 import { useContacts } from "../hooks/use-contacts-queries"
 import { useFilteredContacts } from "../hooks/use-filtered-contacts"
@@ -20,6 +21,7 @@ const ContactsList = () => {
         },
         isFetching,
         isError,
+        error,
     } = useContacts()
 
     const [isNewContactWindowOpen, setIsNewContactWindowOpen] = useState(false)
@@ -33,7 +35,7 @@ const ContactsList = () => {
     } = useFilteredContacts(response.data)
 
     if (isError) {
-        toast.error("Failed to load contacts")
+        toast.error(getErrorMessage(error, "Failed to load contacts"))
         return null
     }
 

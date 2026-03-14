@@ -14,6 +14,7 @@ import { useState } from "react"
 import { NavLink } from "react-router"
 import { useAuth } from "@/features/auth/auth-context"
 import { Loader2 } from "lucide-react"
+import { getErrorMessage } from "@/lib/api-error"
 import { toast } from "sonner"
 
 type LoginFormData = {
@@ -39,10 +40,7 @@ export function LoginForm({
             await login(data.email, data.password);
             toast.success("Logged in successfully");
         } catch (err: unknown) {
-            const message =
-                err && typeof err === "object" && "message" in err
-                    ? String((err as { message: unknown }).message)
-                    : "Login failed";
+            const message = getErrorMessage(err, "Login failed");
             toast.error(message);
             setError(message);
         } finally {
