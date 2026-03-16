@@ -7,6 +7,7 @@ export default function ContactPreview() {
   return (
     <ChatWindow
       participants={screen.participants}
+      newMessages={screen.newMessages}
       title={screen.title}
       messages={screen.messages}
       typingLabel={screen.typingLabel || undefined}

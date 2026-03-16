@@ -41,7 +41,7 @@ const useContactScreen = () => {
 
       const { data: sentMessage } = await api.post<Message>("/messages", formData)
 
-      syncMessage(sentMessage, Number(contactId))
+      syncMessage(sentMessage, data.contact)
 
     } catch (error) {
       console.log("error", error);
@@ -58,6 +58,7 @@ const useContactScreen = () => {
     messages: data?.chat?.messages ?? [],
     chatId: data?.chat?.id,
     typingLabel: data?.chat?.typing_label ?? "",
+    newMessages: data?.chat?.new_messages ?? 0,
     isFetching,
     isSending,
     onBack,

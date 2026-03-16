@@ -7,9 +7,12 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import useUpdateCache from "@/hooks/use-update-cache"
 import { cn } from "@/lib/utils"
+import { chatsService } from "@/services/chats-service"
 import type { Chat, Message } from "@/types/general"
 import { Check, CheckCheck, FileText } from "lucide-react"
+import { useEffect } from "react"
 import { useNavigate, useParams } from "react-router"
 
 export type ConversationListVariant = "chats" | "groups"

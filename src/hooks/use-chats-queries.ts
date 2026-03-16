@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { chatsService } from "@/services/chats-service"
 import type { Chat } from "@/types/general"
+import useUpdateCache from "./use-update-cache"
 
 export type CreateChatParams = {
   label: string
@@ -28,5 +29,11 @@ export function useChat(id: number, enabled: boolean) {
 export function useCreateChat() {
   return useMutation<Chat, Error, CreateChatParams>({
     mutationFn: (params) => chatsService.createChat(params),
+  })
+}
+
+export function useMarkAsRead(chatId: number) {
+  return useMutation<void, Error, void>({
+    mutationFn: () => chatsService.markAsRead(chatId),
   })
 }

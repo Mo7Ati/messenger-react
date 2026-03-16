@@ -7,6 +7,7 @@ export default function ChatPreview({ onBack }: { onBack: () => void }) {
   return (
     <ChatWindow
       participants={screen.participants}
+      newMessages={screen.newMessages}
       title={screen.title}
       messages={screen.messages}
       typingLabel={screen.typingLabel || undefined}
@@ -15,6 +16,7 @@ export default function ChatPreview({ onBack }: { onBack: () => void }) {
       isSending={screen.isSending}
       onBack={onBack}
       onSend={screen.handleSend}
+      onInputFocus={screen.handleInputFocus}
       asGroup={screen.chatType === "group"}
     />
   )

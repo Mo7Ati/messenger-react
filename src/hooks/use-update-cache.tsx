@@ -1,8 +1,9 @@
 import type { GetContactResponse, ContactRequest, ContactRequestStatus } from "@/types/contacts"
-import type { Chat, ChatType, Message, TypingUser } from "@/types/general"
+import type { Chat, ChatType, Message, TypingUser, User } from "@/types/general"
 import { useUser } from "@/features/auth/auth-context"
 import { useQueryClient } from "@tanstack/react-query"
 import type { ApiSuccessResponse } from "@/lib/api"
+import { chatsService } from "@/services/chats-service"
 
 
 type TypingWhisperPayload = {
@@ -55,44 +56,39 @@ const useUpdateCache = () => {
     const queryClient = useQueryClient()
     const user = useUser()
 
-    function syncMessage(message: Message, contactId?: number) {
+    function syncMessage(message: Message, contact?: User) {
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
-            if (!chats) {
-                console.log("chats is null");
-                return chats
-            }
+            if (!chats) return chats
 
-            if (chats.length === 0) {
-                console.log("chats is empty");
-                return [
-                    {
-                        id: message.chat_id,
-                        label: message.user.username,
-                        last_message: message,
-                        new_messages: message.is_mine ? 0 : 1,
-                        created_at: message.created_at,
-                        participants: [message.user],
-                        messages: [message],
-                        type: "peer",
-                        typing_label: "",
-                        typing_users: {},
-                    }
-                ]
-            }
+            // if (chats.length === 0) {
+            //     return [
+            //         {
+            //             id: message.chat_id,
+            //             label: message.user.username,
+            //             last_message: message,
+            //             new_messages: message.is_mine ? 0 : 1,
+            //             created_at: message.created_at,
+            //             participants: [message.user],
+            //             messages: [message],
+            //             type: "peer",
+            //             typing_label: "",
+            //             typing_users: {},
+            //         }
+            //     ]
+            // }
 
 
             const chatExists = chats.some((c) => c.id === message.chat_id)
             if (!chatExists) {
-                console.log("chat does not exist");
                 return [
                     ...chats,
                     {
                         id: message.chat_id,
-                        label: message.user.username,
+                        label: contact?.username ?? message.user.username,
                         last_message: message,
                         new_messages: message.is_mine ? 0 : 1,
                         created_at: message.created_at,
-                        participants: [message.user],
+                        participants: [contact ?? message.user],
                         messages: [message],
                         type: "peer",
                         typing_label: "",
@@ -104,7 +100,6 @@ const useUpdateCache = () => {
 
             return chats.map((c) => {
                 if (c.id === message.chat_id) {
-                    console.log("chat exists");
                     return {
                         ...c,
                         last_message: message,
@@ -124,11 +119,12 @@ const useUpdateCache = () => {
                 : {
                     ...chat,
                     messages: [...chat.messages, message],
+                    new_messages: message.is_mine ? 0 : chat.new_messages + 1,
                 }
         })
 
         queryClient.setQueryData<GetContactResponse>(
-            ["contact", contactId ?? message.user_id],
+            ["contact", contact?.id ?? message.user_id],
             (response) => {
                 if (!response) return response
                 if (!response.chat) return {
@@ -157,6 +153,7 @@ const useUpdateCache = () => {
                         chat: {
                             ...chat,
                             messages: [...chat.messages, message],
+                            new_messages: message.is_mine ? 0 : chat.new_messages + 1,
                         },
                     }
             }
@@ -164,7 +161,6 @@ const useUpdateCache = () => {
     }
 
     function appendGroupToGroupsList(group: Chat) {
-        console.log("appendGroupToGroupsList", group);
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
             if (!chats) return chats
             return [...chats, group]
@@ -194,7 +190,6 @@ const useUpdateCache = () => {
     }
 
     function syncTyping(payload: TypingWhisperPayload) {
-        console.log("syncTyping", payload);
         if (payload.user_id === user.id) return
         const now = Date.now()
 
@@ -224,7 +219,6 @@ const useUpdateCache = () => {
     }
 
     function syncStopTyping(payload: TypingWhisperPayload) {
-        console.log("syncStopTyping", payload);
         if (payload.user_id === user.id) return
         const now = Date.now()
 
@@ -312,12 +306,29 @@ const useUpdateCache = () => {
         }
     }
 
+    async function makeAsRead(chatId: number) {
+        if (!chatId) return
+
+        await chatsService.markAsRead(chatId)
+
+        queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
+            if (!chats) return chats
+            return chats.map((c) => c.id === chatId ? { ...c, new_messages: 0 } : c)
+        })
+
+        queryClient.setQueryData<Chat>(["chat", chatId], (chat) => {
+            if (!chat) return chat
+            return { ...chat, new_messages: 0 }
+        })
+    }
+
     return {
         syncMessage,
         syncTyping,
         syncStopTyping,
         appendGroupToGroupsList,
         addReceivedContactRequest,
+        makeAsRead,
         updateSentContactRequestStatus,
     }
 }
