@@ -20,10 +20,16 @@ const useChannels = () => {
     // Listen for new messages in the inbox channel
     useEcho(`messenger.user.${user.id}`, "MessageCreated", (payload: { message: Message }) => {
         syncMessage(payload.message);
+        toast.success(`${payload.message.user.username} : ${payload.message.body}`);
+        playNotificationSound();
     });
+    // Listen for new groups in the messenger channel
     useEcho(`messenger.user.${user.id}`, "GroupCreated", (payload: { group: Chat }) => {
         appendGroupToGroupsList(payload.group);
+        toast.success(`You are added to ${payload.group.label} group`);
+        playNotificationSound();
     });
+    // Listen for new contact requests in the messenger channel
     useEcho(
         `messenger.user.${user.id}`,
         "ContactRequestSent",
@@ -34,6 +40,7 @@ const useChannels = () => {
             toast(`${request.sender.username} sent you a contact request`);
         }
     );
+    // Listen for updated contact requests in the messenger channel
     useEcho(
         `messenger.user.${user.id}`,
         "ContactRequestUpdated",
@@ -44,8 +51,6 @@ const useChannels = () => {
             if (request.status === "accepted") {
                 playNotificationSound();
                 toast.success(`${request.receiver.username} accepted your contact request`);
-            } else if (request.status === "cancelled") {
-                toast(`${request.receiver.username} rejected your contact request`);
             }
         }
     );
@@ -54,7 +59,6 @@ const useChannels = () => {
     const messengerChannel = useEchoPresence(`messenger`).channel;
     messengerChannel().listenForWhisper("typing", syncTyping);
     messengerChannel().listenForWhisper("stop-typing", syncStopTyping);
-
     return {
         messengerChannel,
     }

@@ -15,6 +15,7 @@ export default function ChatPreview({ onBack }: { onBack: () => void }) {
       isSending={screen.isSending}
       onBack={onBack}
       onSend={screen.handleSend}
+      asGroup={screen.chatType === "group"}
     />
   )
 }

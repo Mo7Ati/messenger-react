@@ -106,8 +106,6 @@ export function NewContactWindow({ isOpen, onClose }: NewContactWindowProps) {
             ) : (
               <ul className="space-y-1 pr-2">
                 {searchResults.map((user) => {
-                  console.log(user);
-
                   return (
                     <li key={user.id}>
                       <UserSearchItem

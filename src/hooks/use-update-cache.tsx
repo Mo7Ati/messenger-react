@@ -57,15 +57,19 @@ const useUpdateCache = () => {
 
     function syncMessage(message: Message, contactId?: number) {
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
-            if (!chats) return chats
+            if (!chats) {
+                console.log("chats is null");
+                return chats
+            }
 
             if (chats.length === 0) {
+                console.log("chats is empty");
                 return [
                     {
                         id: message.chat_id,
                         label: message.user.username,
                         last_message: message,
-                        new_messages: 1,
+                        new_messages: message.is_mine ? 0 : 1,
                         created_at: message.created_at,
                         participants: [message.user],
                         messages: [message],
@@ -79,12 +83,14 @@ const useUpdateCache = () => {
 
             const chatExists = chats.some((c) => c.id === message.chat_id)
             if (!chatExists) {
+                console.log("chat does not exist");
                 return [
+                    ...chats,
                     {
                         id: message.chat_id,
                         label: message.user.username,
                         last_message: message,
-                        new_messages: 1,
+                        new_messages: message.is_mine ? 0 : 1,
                         created_at: message.created_at,
                         participants: [message.user],
                         messages: [message],
@@ -98,6 +104,7 @@ const useUpdateCache = () => {
 
             return chats.map((c) => {
                 if (c.id === message.chat_id) {
+                    console.log("chat exists");
                     return {
                         ...c,
                         last_message: message,
@@ -187,6 +194,7 @@ const useUpdateCache = () => {
     }
 
     function syncTyping(payload: TypingWhisperPayload) {
+        console.log("syncTyping", payload);
         if (payload.user_id === user.id) return
         const now = Date.now()
 
@@ -216,6 +224,7 @@ const useUpdateCache = () => {
     }
 
     function syncStopTyping(payload: TypingWhisperPayload) {
+        console.log("syncStopTyping", payload);
         if (payload.user_id === user.id) return
         const now = Date.now()
 

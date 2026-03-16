@@ -16,7 +16,7 @@ import ContactPreview from "@/features/contacts/components/contact-preview"
 import { ContactRequests } from "@/features/contacts/pages/contact-requests"
 import Contacts from "@/features/contacts/pages/contacts"
 import Groups from "@/features/groups/pages/groups"
-import ChatPreview from "@/features/messaging/components/chat-preview"
+import ChatPreview from "@/components/chat-preview"
 
 export function AppRoutes() {
   const navigate = useNavigate()

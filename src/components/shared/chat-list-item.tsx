@@ -17,7 +17,7 @@ export type ConversationListVariant = "chats" | "groups"
 const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
   if (lastMessage.type == "text") {
     return lastMessage.body.length > 20
-      ? lastMessage.body.slice(0, 30) + "..."
+      ? lastMessage.body.slice(0, 20) + "..."
       : lastMessage.body
   }
   return (
@@ -33,7 +33,7 @@ const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string 
 
 const variantConfig: Record<
   ConversationListVariant,
-  { path: string; paramKey: "chatId"}
+  { path: string; paramKey: "chatId" }
 > = {
   chats: { path: "/chats", paramKey: "chatId" },
   groups: { path: "/groups", paramKey: "chatId" },
@@ -59,7 +59,8 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
         className={cn(
           "w-full px-4 py-3 text-left transition-colors cursor-pointer",
           "hover:bg-muted/50 focus-visible:bg-muted/60 outline-none",
-          Number(activeId) === chat.id && "bg-muted"
+          Number(activeId) === chat.id && "bg-muted-foreground/10",
+          chat.new_messages > 0 && "border-l-4 border-primary bg-primary/5"
         )}
       >
         <div className="flex items-center gap-3">
@@ -83,9 +84,9 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <p className="truncate text-sm font-semibold">{chat.label}</p>
+              <p className={cn("truncate text-sm font-semibold", chat.new_messages > 0 && "text-foreground")}>{chat.label}</p>
               {chat.last_message && (
-                <span className="shrink-0 text-xs text-muted-foreground">
+                <span className={cn("shrink-0 text-xs", chat.new_messages > 0 ? "text-primary font-medium" : "text-muted-foreground")}>
                   {chat.last_message.created_at}
                 </span>
               )}
@@ -116,8 +117,8 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
               </div>
               <div>
                 {chat.new_messages > 0 && (
-                  <Badge className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                    {chat.new_messages}
+                  <Badge className="bg-primary text-primary-foreground min-w-5 h-5 flex items-center justify-center rounded-full text-xs px-1.5">
+                    {chat.new_messages > 99 ? "99+" : chat.new_messages}
                   </Badge>
                 )}
               </div>

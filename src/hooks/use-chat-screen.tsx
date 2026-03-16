@@ -13,7 +13,7 @@ const useChatScreen = () => {
 
     const { chatId } = useParams<{ chatId: string }>()
     const numericChatId = Number(chatId)
-    const { data: chat, isFetching } = useChat(numericChatId , !!numericChatId)
+    const { data: chat, isFetching } = useChat(numericChatId, !!numericChatId)
 
     const handleSend = async ({ body, files }: { body: string, files: File[] }) => {
         try {
@@ -70,6 +70,7 @@ const useChatScreen = () => {
         messages: chat?.messages ?? [],
         typingLabel: chat?.typing_label ?? "",
         input,
+        chatType: chat?.type ?? "peer",
         isFetching,
         isSending,
         setInput,
