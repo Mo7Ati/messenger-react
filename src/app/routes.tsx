@@ -9,6 +9,7 @@ import ForgotPassword from "@/features/auth/pages/forgot-password"
 import Login from "@/features/auth/pages/login"
 import Register from "@/features/auth/pages/register"
 import ResetPassword from "@/features/auth/pages/reset-password"
+import SocialCallback from "@/features/auth/pages/social-callback"
 
 import Chats from "@/features/chats/pages/chats"
 
@@ -31,6 +32,7 @@ export function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/auth/social-callback" element={<SocialCallback />} />
       </Route>
 
       {/* Protected Routes */}

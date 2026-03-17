@@ -1,6 +1,12 @@
 import api from "@/lib/api"
 import type { User } from "@/types/general"
 
+export type SocialProvider = "google" | "github"
+
+export const socialRedirect = async (provider: SocialProvider) => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/${provider}/redirect`
+}
+
 const getCsrfCookie = async () => {
     await api.get("/sanctum/csrf-cookie", { baseURL: `${import.meta.env.VITE_API_URL}` })
 }
