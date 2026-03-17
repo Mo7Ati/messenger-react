@@ -17,6 +17,7 @@ import { ContactRequests } from "@/features/contacts/pages/contact-requests"
 import Contacts from "@/features/contacts/pages/contacts"
 import Groups from "@/features/groups/pages/groups"
 import ChatPreview from "@/components/chat-preview"
+import Profile from "@/features/profile/pages/profile"
 
 export function AppRoutes() {
   const navigate = useNavigate()
@@ -53,6 +54,9 @@ export function AppRoutes() {
             <Route path=":contactId" element={<ContactPreview />} />
             <Route path="requests" element={<ContactRequests />} />
           </Route>
+
+          {/* Profile */}
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
     </Routes>

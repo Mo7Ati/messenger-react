@@ -13,10 +13,12 @@ import {
     BadgeCheckIcon,
     LogOutIcon,
 } from "lucide-react"
+import { useNavigate } from "react-router"
 
 
 export function NavUser() {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     if (!user) return null;
 
     return (
@@ -24,14 +26,14 @@ export function NavUser() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
+                        <AvatarImage src={user.avatar_url} alt={user.username} />
                         <AvatarFallback>{user.username.slice(0, 2)}</AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuGroup>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/profile")}>
                         <BadgeCheckIcon />
                         Account
                     </DropdownMenuItem>
