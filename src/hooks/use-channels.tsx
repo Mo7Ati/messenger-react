@@ -14,6 +14,7 @@ const useChannels = () => {
         syncMessage,
         syncTyping,
         syncStopTyping,
+        syncReadStatus,
         appendGroupToGroupsList,
         addReceivedContactRequest,
         updateSentContactRequestStatus,
@@ -21,6 +22,7 @@ const useChannels = () => {
 
     // Listen for new messages in the inbox channel
     useEcho(`messenger.user.${user.id}`, "MessageCreated", (payload: { message: Message }) => {
+        console.log("MessageCreated", payload.message);
         syncMessage(payload.message);
         toast.success(`${payload.message.user.username} : ${payload.message.body}`);
         playNotificationSound();
@@ -61,6 +63,10 @@ const useChannels = () => {
     const messengerChannel = useEchoPresence(`messenger`).channel;
     messengerChannel().listenForWhisper("typing", syncTyping);
     messengerChannel().listenForWhisper("stop-typing", syncStopTyping);
+    messengerChannel().listenForWhisper("read", (payload: { chat_id: number; user_id: number }) => {
+        if (payload.user_id === user.id) return
+        syncReadStatus(payload.chat_id)
+    });
 
     // Track online users via presence channel events
     messengerChannel()

@@ -7,7 +7,6 @@ export default function ChatPreview({ onBack }: { onBack: () => void }) {
   return (
     <ChatWindow
       participants={screen.participants}
-      newMessages={screen.newMessages}
       title={screen.title}
       messages={screen.messages}
       typingLabel={screen.typingLabel || undefined}

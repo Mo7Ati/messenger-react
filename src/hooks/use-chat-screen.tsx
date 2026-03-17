@@ -5,20 +5,32 @@ import api from '@/lib/api';
 import type { Message } from '@/types/general';
 import { toast } from 'sonner';
 import useUpdateCache from './use-update-cache';
+import useChannels from './use-channels';
+import { useUser } from '@/features/auth/auth-context';
 
 const useChatScreen = () => {
     const [input, setInput] = useState("");
     const [isSending, setIsSending] = useState(false)
     const { syncMessage, makeAsRead } = useUpdateCache()
+    const { messengerChannel } = useChannels()
+    const user = useUser()
 
     const { chatId } = useParams<{ chatId: string }>()
     const numericChatId = Number(chatId)
     const { data: chat, isFetching } = useChat(numericChatId, !!numericChatId)
 
+    const whisperRead = (chatId: number) => {
+        messengerChannel().whisper("read", {
+            chat_id: chatId,
+            user_id: user.id,
+        })
+    }
+
     useEffect(() => {
-        if (!numericChatId || !chat || chat.new_messages === 0) return
+        if (isFetching || !numericChatId || !chat || chat.new_messages === 0) return
         makeAsRead(numericChatId)
-    }, [numericChatId])
+        whisperRead(numericChatId)
+    }, [numericChatId, isFetching])
 
     const handleSend = async ({ body, files }: { body: string, files: File[] }) => {
         try {
@@ -48,11 +60,12 @@ const useChatScreen = () => {
 
 
     const handleInputFocus = () => {
-        console.log("handleInputFocus", numericChatId, chat, chat?.new_messages);
         if (numericChatId && chat && chat.new_messages > 0) {
             makeAsRead(numericChatId)
+            whisperRead(numericChatId)
         }
     }
+    console.log("chat", chat?.new_messages);
 
     return {
         chatId: numericChatId,

@@ -3,15 +3,12 @@ import { ChatWindowSkeleton } from "@/components/ui/chat-window-skeleton"
 import { ChatMessages } from "./chat-messages"
 import ChatHeader from "./chat-header"
 import ChatInput from "./chat-input"
-import { useEffect } from "react"
-import useUpdateCache from "@/hooks/use-update-cache"
 
 
 type ChatWindowProps = {
   title: string
   participants: User[]
   messages: Message[]
-  newMessages: number
   typingLabel?: string
   chatId?: number
   asGroup?: boolean
@@ -25,7 +22,6 @@ type ChatWindowProps = {
 export const ChatWindow = ({
   title,
   participants,
-  newMessages,
   messages,
   typingLabel,
   chatId,
@@ -36,14 +32,6 @@ export const ChatWindow = ({
   onSend,
   onInputFocus,
 }: ChatWindowProps) => {
-  const { makeAsRead } = useUpdateCache()
-
-
-  useEffect(() => {
-    if (!chatId || newMessages <= 0) return
-    makeAsRead(chatId)
-  }, [chatId])
-
 
   if (isFetching) {
     return <ChatWindowSkeleton />

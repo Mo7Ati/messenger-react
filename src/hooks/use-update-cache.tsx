@@ -306,6 +306,28 @@ const useUpdateCache = () => {
         }
     }
 
+    function syncReadStatus(chatId: number) {
+        queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
+            if (!chats) return chats
+            return chats.map((c) =>
+                c.id === chatId && c.last_message
+                    ? { ...c, last_message: { ...c.last_message, is_read_by_all: true } }
+                    : c
+            )
+        })
+
+        queryClient.setQueryData<Chat>(["chat", chatId], (chat) => {
+            if (!chat) return chat
+            return {
+                ...chat,
+                last_message: chat.last_message
+                    ? { ...chat.last_message, is_read_by_all: true }
+                    : chat.last_message,
+                messages: chat.messages.map((m) => ({ ...m, is_read_by_all: true })),
+            }
+        })
+    }
+
     async function makeAsRead(chatId: number) {
         if (!chatId) return
 
@@ -320,12 +342,15 @@ const useUpdateCache = () => {
             if (!chat) return chat
             return { ...chat, new_messages: 0 }
         })
+
+        syncReadStatus(chatId)
     }
 
     return {
         syncMessage,
         syncTyping,
         syncStopTyping,
+        syncReadStatus,
         appendGroupToGroupsList,
         addReceivedContactRequest,
         makeAsRead,

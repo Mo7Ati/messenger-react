@@ -8,31 +8,13 @@ import {
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useOnlineUsers } from "@/contexts/online-users-context"
-import useUpdateCache from "@/hooks/use-update-cache"
+import useFormatLastMessage from "@/features/chats/hooks/use-format-last-message"
 import { cn } from "@/lib/utils"
-import { chatsService } from "@/services/chats-service"
-import type { Chat, Message } from "@/types/general"
-import { Check, CheckCheck, FileText } from "lucide-react"
-import { useEffect } from "react"
+import type { Chat } from "@/types/general"
+import { Check, CheckCheck } from "lucide-react"
 import { useNavigate, useParams } from "react-router"
 
 export type ConversationListVariant = "chats" | "groups"
-
-const formatLastMessageLabel = (lastMessage: Message): React.ReactNode | string => {
-  if (lastMessage.type == "text") {
-    return lastMessage.body.length > 20
-      ? lastMessage.body.slice(0, 20) + "..."
-      : lastMessage.body
-  }
-  return (
-    <div className="flex items-center gap-1">
-      <FileText size={14} className="shrink-0" />
-      <span className="truncate max-w-[180px]">
-        Attachment
-      </span>
-    </div>
-  )
-}
 
 
 const variantConfig: Record<
@@ -55,6 +37,7 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
   const params = useParams<{ chatId?: string }>()
   const { path, paramKey } = variantConfig[variant]
   const activeId = params[paramKey]
+  const { formatLastMessageLabel } = useFormatLastMessage()
 
   return (
     <li key={chat.id}>
@@ -116,7 +99,7 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
                     )}
                     <span className="truncate">
                       {
-                        formatLastMessageLabel(chat.last_message)
+                        formatLastMessageLabel(chat)
                       }
                     </span>
                   </>
