@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Paperclip, Send, Smile, X, FileText } from "lucide-react"
-import { formatFileSize } from "@/lib/utils"
+import { Paperclip, Send, Smile } from "lucide-react"
 import { useChatInput, type SendMessagePayload } from "../../hooks/use-chat-input"
+import { PhotoProvider } from "react-image-previewer"
+import { FilePreviewItem } from "./file-preview-item"
 
 type ChatInputProps = {
     onSend: (payload: SendMessagePayload) => Promise<void> | void
@@ -38,36 +39,18 @@ export default function ChatInput({
     return (
         <div className="sticky bottom-0 z-10 border-t bg-background px-4 py-3">
             {files.length > 0 && (
-                <div className="mb-3 flex flex-col gap-2">
-                    {files.map((file, index) => (
-                        <div
-                            key={`${file.name}-${file.size}-${index}`}
-                            className="flex items-center gap-3 rounded-xl border bg-muted/40 px-3 py-2"
-                        >
-                            <div className="rounded-lg border bg-background p-2">
-                                <FileText className="h-4 w-4" />
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-medium">{file.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {formatFileSize(file.size)}
-                                </p>
-                            </div>
-
-                            <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 shrink-0"
-                                onClick={() => removeFile(index)}
+                <PhotoProvider>
+                    <div className="mb-3 flex flex-wrap gap-2">
+                        {files.map((file, index) => (
+                            <FilePreviewItem
+                                key={`${file.name}-${file.size}-${index}`}
+                                file={file}
+                                onRemove={() => removeFile(index)}
                                 disabled={isSending}
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ))}
-                </div>
+                            />
+                        ))}
+                    </div>
+                </PhotoProvider>
             )}
 
             <form
