@@ -65,7 +65,6 @@ const useChatScreen = () => {
             whisperRead(numericChatId)
         }
     }
-    console.log("chat", chat?.new_messages);
 
     return {
         chatId: numericChatId,

@@ -35,7 +35,6 @@ export function LoginForm({
     const { login } = useAuth();
 
     const handleSocialLogin = async (provider: SocialProvider) => {
-        console.log("handleSocialLogin", provider);
         setSocialLoading(provider);
         try {
             await socialRedirect(provider);

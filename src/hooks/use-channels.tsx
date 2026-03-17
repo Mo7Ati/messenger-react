@@ -22,7 +22,6 @@ const useChannels = () => {
 
     // Listen for new messages in the inbox channel
     useEcho(`messenger.user.${user.id}`, "MessageCreated", (payload: { message: Message }) => {
-        console.log("MessageCreated", payload.message);
         syncMessage(payload.message);
         toast.success(`${payload.message.user.username} : ${payload.message.body}`);
         playNotificationSound();
