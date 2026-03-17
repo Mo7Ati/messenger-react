@@ -1,4 +1,5 @@
 import { useUser } from '@/features/auth/auth-context';
+import { useOnlineUsers } from '@/contexts/online-users-context';
 import { useEcho, useEchoPresence } from '@laravel/echo-react';
 import useUpdateCache from './use-update-cache';
 import type { Chat, Message } from '@/types/general';
@@ -8,6 +9,7 @@ import { playNotificationSound } from '@/lib/utils';
 
 const useChannels = () => {
     const user = useUser();
+    const { setOnlineUserIds } = useOnlineUsers();
     const {
         syncMessage,
         syncTyping,
@@ -59,6 +61,23 @@ const useChannels = () => {
     const messengerChannel = useEchoPresence(`messenger`).channel;
     messengerChannel().listenForWhisper("typing", syncTyping);
     messengerChannel().listenForWhisper("stop-typing", syncStopTyping);
+
+    // Track online users via presence channel events
+    messengerChannel()
+        .here((users: { id: number }[]) =>
+            setOnlineUserIds(new Set(users.map((u) => u.id)))
+        )
+        .joining((user: { id: number }) =>
+            setOnlineUserIds((prev) => new Set([...prev, user.id]))
+        )
+        .leaving((user: { id: number }) =>
+            setOnlineUserIds((prev) => {
+                const next = new Set(prev);
+                next.delete(user.id);
+                return next;
+            })
+        );
+
     return {
         messengerChannel,
     }

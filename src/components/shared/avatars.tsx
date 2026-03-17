@@ -1,8 +1,10 @@
+import { useOnlineUsers } from '@/contexts/online-users-context'
 import type { User } from '@/types/general'
 import React from 'react'
 import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from '../ui/avatar'
 
 const Avatars = ({ participants }: { participants: User[] }) => {
+    const { onlineUserIds } = useOnlineUsers()
     const visibleParticipants = React.useMemo(() => participants.slice(0, 2), [participants])
     const extraParticipantsCount = Math.max(participants.length - 2, 0)
 
@@ -15,7 +17,11 @@ const Avatars = ({ participants }: { participants: User[] }) => {
                         <AvatarFallback>
                             {participant.username.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
-                        <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                        <AvatarBadge className={
+                            onlineUserIds.has(participant.id)
+                                ? "bg-green-600 dark:bg-green-800"
+                                : "bg-gray-400 dark:bg-gray-600"
+                        } />
                     </Avatar>
                 ))}
 

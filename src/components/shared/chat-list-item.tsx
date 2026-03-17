@@ -7,6 +7,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { useOnlineUsers } from "@/contexts/online-users-context"
 import useUpdateCache from "@/hooks/use-update-cache"
 import { cn } from "@/lib/utils"
 import { chatsService } from "@/services/chats-service"
@@ -49,6 +50,7 @@ type ConversationListItemProps = {
 
 
 export function ChatListItem({ chat, variant }: ConversationListItemProps) {
+  const { onlineUserIds } = useOnlineUsers()
   const navigate = useNavigate()
   const params = useParams<{ chatId?: string }>()
   const { path, paramKey } = variantConfig[variant]
@@ -75,7 +77,11 @@ export function ChatListItem({ chat, variant }: ConversationListItemProps) {
                   <AvatarFallback>
                     {participant.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
-                  <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                  <AvatarBadge className={
+                    onlineUserIds.has(participant.id)
+                      ? "bg-green-600 dark:bg-green-800"
+                      : "bg-gray-400 dark:bg-gray-600"
+                  } />
                 </Avatar>
               ))}
 
