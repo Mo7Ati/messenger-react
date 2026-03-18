@@ -288,24 +288,43 @@ const useUpdateCache = () => {
         }
     }
 
+    function applyGroupRead(message: Message, participants: User[], readerUserId: number): Message {
+        const reader = participants.find((p) => p.id === readerUserId)
+        if (!reader) return message
+
+        console.log(message);
+
+
+        const currentReaders = message.readers ?? []
+        const alreadyRead = currentReaders.some((r) => r.id === readerUserId)
+        const newReaders = alreadyRead ? currentReaders : [...currentReaders, reader]
+
+        const readerIds = new Set(newReaders.map((r) => r.id))
+        const isReadByAll = participants
+            .filter((p) => p.id !== message.user_id)
+            .every((p) => readerIds.has(p.id))
+
+        return { ...message, readers: newReaders, is_read_by_all: isReadByAll }
+    }
+
     function syncReadStatus(chatId: number, userId?: number) {
+        const groupReaderUserId = userId ?? user.id
+
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
             if (!chats) return chats
             return chats.map((c) => {
-                if (c.id === chatId) {
-                    if (c.type === "peer") {
-                        return {
-                            ...c,
-                            last_message: { ...c.last_message, is_read_by_all: true },
-                        }
-                    } else {
-                        return {
-                            ...c,
-                            last_message: { ...c.last_message, readers: [...c.last_message.readers, user] },
-                        }
+                if (c.id !== chatId) return c
+                if (c.type === "peer") {
+                    return {
+                        ...c,
+                        last_message: { ...c.last_message, is_read_by_all: true },
+                    }
+                } else {
+                    return {
+                        ...c,
+                        last_message: applyGroupRead(c.last_message, c.participants, groupReaderUserId),
                     }
                 }
-                return c
             })
         })
 
@@ -319,7 +338,7 @@ const useUpdateCache = () => {
             } else {
                 return {
                     ...chat,
-                    messages: chat.messages.map((m) => ({ ...m, readers: [...m.readers, user] })),
+                    messages: chat.messages.map((m) => applyGroupRead(m, chat.participants, groupReaderUserId)),
                 }
             }
         })
