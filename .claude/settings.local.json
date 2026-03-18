@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(json|tsx|jsx\\)$|^d\")",
+      "Bash(grep -E \"\\\\.tsx$|\\\\.ts$\")"
+    ]
+  }
+}

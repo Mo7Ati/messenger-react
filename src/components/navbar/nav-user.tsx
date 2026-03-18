@@ -12,14 +12,20 @@ import { useAuth } from "@/features/auth/auth-context";
 import {
     BadgeCheckIcon,
     LogOutIcon,
+    MoonIcon,
+    SunIcon,
 } from "lucide-react"
 import { useNavigate } from "react-router"
+import { useTheme } from "next-themes"
 
 
 export function NavUser() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const { theme, setTheme } = useTheme();
     if (!user) return null;
+
+    const isDark = theme === "dark"
 
     return (
         <DropdownMenu>
@@ -36,6 +42,10 @@ export function NavUser() {
                     <DropdownMenuItem onClick={() => navigate("/profile")}>
                         <BadgeCheckIcon />
                         Account
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setTheme(isDark ? "light" : "dark")}>
+                        {isDark ? <SunIcon /> : <MoonIcon />}
+                        {isDark ? "Light mode" : "Dark mode"}
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
