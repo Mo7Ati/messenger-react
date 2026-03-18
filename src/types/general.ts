@@ -31,6 +31,7 @@ export type Message = {
     type: "text" | "attachment"
     attachments?: Attachment[]
     chat?: Chat
+    readers: User[]
 }
 
 export type TypingUser = {

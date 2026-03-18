@@ -60,24 +60,6 @@ const useUpdateCache = () => {
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
             if (!chats) return chats
 
-            // if (chats.length === 0) {
-            //     return [
-            //         {
-            //             id: message.chat_id,
-            //             label: message.user.username,
-            //             last_message: message,
-            //             new_messages: message.is_mine ? 0 : 1,
-            //             created_at: message.created_at,
-            //             participants: [message.user],
-            //             messages: [message],
-            //             type: "peer",
-            //             typing_label: "",
-            //             typing_users: {},
-            //         }
-            //     ]
-            // }
-
-
             const chatExists = chats.some((c) => c.id === message.chat_id)
             if (!chatExists) {
                 return [
@@ -306,29 +288,57 @@ const useUpdateCache = () => {
         }
     }
 
-    function syncReadStatus(chatId: number) {
+    function syncReadStatus(chatId: number, userId?: number) {
         queryClient.setQueryData<Chat[]>(["chats"], (chats) => {
             if (!chats) return chats
-            return chats.map((c) =>
-                c.id === chatId && c.last_message
-                    ? { ...c, last_message: { ...c.last_message, is_read_by_all: true } }
-                    : c
-            )
+            return chats.map((c) => {
+                if (c.id === chatId) {
+                    if (c.type === "peer") {
+                        return {
+                            ...c,
+                            last_message: { ...c.last_message, is_read_by_all: true },
+                        }
+                    } else {
+                        return {
+                            ...c,
+                            last_message: { ...c.last_message, readers: [...c.last_message.readers, user] },
+                        }
+                    }
+                }
+                return c
+            })
         })
 
         queryClient.setQueryData<Chat>(["chat", chatId], (chat) => {
             if (!chat) return chat
-            return {
-                ...chat,
-                last_message: chat.last_message
-                    ? { ...chat.last_message, is_read_by_all: true }
-                    : chat.last_message,
-                messages: chat.messages.map((m) => ({ ...m, is_read_by_all: true })),
+            if (chat.type === "peer") {
+                return {
+                    ...chat,
+                    messages: chat.messages.map((m) => ({ ...m, is_read_by_all: true })),
+                }
+            } else {
+                return {
+                    ...chat,
+                    messages: chat.messages.map((m) => ({ ...m, readers: [...m.readers, user] })),
+                }
             }
         })
+
+        if (userId) {
+            queryClient.setQueryData<GetContactResponse>(["contact", userId], (response) => {
+                if (!response?.chat || response.chat.id !== chatId) return response
+                return {
+                    ...response,
+                    chat: {
+                        ...response.chat,
+                        messages: response.chat.messages.map((m) => ({ ...m, is_read_by_all: true })),
+                    },
+                }
+            })
+        }
     }
 
-    async function makeAsRead(chatId: number) {
+    async function makeAsRead(chatId: number, contactId?: number) {
         if (!chatId) return
 
         await chatsService.markAsRead(chatId)
@@ -343,7 +353,7 @@ const useUpdateCache = () => {
             return { ...chat, new_messages: 0 }
         })
 
-        syncReadStatus(chatId)
+        syncReadStatus(chatId, contactId)
     }
 
     return {

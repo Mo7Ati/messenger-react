@@ -15,6 +15,7 @@ export default function ContactPreview() {
       isSending={screen.isSending}
       onBack={screen.onBack}
       onSend={screen.handleSend}
+      onInputFocus={screen.handleInputFocus}
     />
   )
 }

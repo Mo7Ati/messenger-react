@@ -32,6 +32,8 @@ type ConversationListItemProps = {
 
 
 export function ChatListItem({ chat, variant }: ConversationListItemProps) {
+  console.log(chat);
+
   const { onlineUserIds } = useOnlineUsers()
   const navigate = useNavigate()
   const params = useParams<{ chatId?: string }>()

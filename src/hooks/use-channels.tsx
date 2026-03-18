@@ -1,7 +1,8 @@
 import { useUser } from '@/features/auth/auth-context';
 import { useOnlineUsers } from '@/contexts/online-users-context';
-import { useEcho, useEchoPresence } from '@laravel/echo-react';
+import { useEcho } from '@laravel/echo-react';
 import useUpdateCache from './use-update-cache';
+import useMessengerChannel from './use-messenger-channel';
 import type { Chat, Message } from '@/types/general';
 import type { ContactRequestSentPayload, ContactRequestUpdatedPayload } from '@/types/contacts';
 import { toast } from 'sonner';
@@ -59,12 +60,12 @@ const useChannels = () => {
     );
 
     // Listen for typing and stop-typing in the messenger channel
-    const messengerChannel = useEchoPresence(`messenger`).channel;
+    const messengerChannel = useMessengerChannel();
     messengerChannel().listenForWhisper("typing", syncTyping);
     messengerChannel().listenForWhisper("stop-typing", syncStopTyping);
     messengerChannel().listenForWhisper("read", (payload: { chat_id: number; user_id: number }) => {
         if (payload.user_id === user.id) return
-        syncReadStatus(payload.chat_id)
+        syncReadStatus(payload.chat_id, payload.user_id)
     });
 
     // Track online users via presence channel events
@@ -83,9 +84,7 @@ const useChannels = () => {
             })
         );
 
-    return {
-        messengerChannel,
-    }
 }
+
 
 export default useChannels

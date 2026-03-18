@@ -1,18 +1,41 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router"
 import { toast } from "sonner"
 import api from "@/lib/api"
 import { useContact } from "./use-contacts-queries"
 import type { Message } from "@/types/general"
 import useUpdateCache from "@/hooks/use-update-cache"
+import useMessengerChannel from "@/hooks/use-messenger-channel"
+import { useUser } from "@/features/auth/auth-context"
 
 
 const useContactScreen = () => {
   const { contactId } = useParams<{ contactId: string }>()
+  const numericContactId = Number(contactId)
   const navigate = useNavigate()
   const [isSending, setIsSending] = useState(false)
-  const { syncMessage } = useUpdateCache()
-  const { data, isFetching } = useContact(Number(contactId))
+  const { syncMessage, makeAsRead } = useUpdateCache()
+  const messengerChannel = useMessengerChannel()
+  const user = useUser()
+  const { data, isFetching } = useContact(numericContactId)
+  const chatId = data?.chat?.id
+
+  const whisperRead = (chatId: number) => {
+    messengerChannel().whisper("read", { chat_id: chatId, user_id: user.id })
+  }
+
+  useEffect(() => {
+    if (isFetching || !chatId || !data?.chat || data.chat.new_messages === 0) return
+    makeAsRead(chatId, numericContactId)
+    whisperRead(chatId)
+  }, [chatId, isFetching])
+
+  const handleInputFocus = () => {
+    if (chatId && data?.chat && data.chat.new_messages > 0) {
+      makeAsRead(chatId, numericContactId)
+      whisperRead(chatId)
+    }
+  }
 
   const onBack = () => navigate("/contacts")
 
@@ -52,17 +75,18 @@ const useContactScreen = () => {
   }
 
   return {
-    contactId,
+    contactId: numericContactId,
     participants: data?.contact ? [data.contact] : [],
     title: data?.contact?.username ?? "Contact",
     messages: data?.chat?.messages ?? [],
-    chatId: data?.chat?.id,
+    chatId,
     typingLabel: data?.chat?.typing_label ?? "",
     newMessages: data?.chat?.new_messages ?? 0,
     isFetching,
     isSending,
     onBack,
     handleSend,
+    handleInputFocus,
   }
 }
 

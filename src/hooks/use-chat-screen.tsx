@@ -5,14 +5,14 @@ import api from '@/lib/api';
 import type { Message } from '@/types/general';
 import { toast } from 'sonner';
 import useUpdateCache from './use-update-cache';
-import useChannels from './use-channels';
+import useMessengerChannel from './use-messenger-channel';
 import { useUser } from '@/features/auth/auth-context';
 
 const useChatScreen = () => {
     const [input, setInput] = useState("");
     const [isSending, setIsSending] = useState(false)
     const { syncMessage, makeAsRead } = useUpdateCache()
-    const { messengerChannel } = useChannels()
+    const messengerChannel = useMessengerChannel()
     const user = useUser()
 
     const { chatId } = useParams<{ chatId: string }>()
@@ -26,9 +26,13 @@ const useChatScreen = () => {
         })
     }
 
+    const contactId = chat?.type === "peer"
+        ? chat.participants.find((p) => p.id !== user.id)?.id
+        : undefined
+
     useEffect(() => {
         if (isFetching || !numericChatId || !chat || chat.new_messages === 0) return
-        makeAsRead(numericChatId)
+        makeAsRead(numericChatId, contactId)
         whisperRead(numericChatId)
     }, [numericChatId, isFetching])
 
@@ -61,7 +65,7 @@ const useChatScreen = () => {
 
     const handleInputFocus = () => {
         if (numericChatId && chat && chat.new_messages > 0) {
-            makeAsRead(numericChatId)
+            makeAsRead(numericChatId, contactId)
             whisperRead(numericChatId)
         }
     }

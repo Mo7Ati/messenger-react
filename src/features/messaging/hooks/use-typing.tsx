@@ -1,12 +1,12 @@
 import { useUser } from "@/features/auth/auth-context"
-import useChannels from "@/hooks/use-channels"
+import useMessengerChannel from "@/hooks/use-messenger-channel"
 import { useEffect, useRef } from "react"
 
 const TYPING_THROTTLE_MS = 2000
 const STOP_TYPING_AFTER_MS = 2000
 
 export function useTyping(chatId?: number) {
-    const { messengerChannel } = useChannels()
+    const messengerChannel = useMessengerChannel()
     const user = useUser()
 
     const stopTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
